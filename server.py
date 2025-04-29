@@ -2,6 +2,7 @@ from socket import *
 import threading
 import time
 import os
+import queue
 
 class FileServer:
 
@@ -20,6 +21,8 @@ class FileServer:
         self._threads = []
         
         self.segmentLength = 1024
+        
+        self.downloadQueue = queue.Queue()
 
     #creates a thread for each client
     def connect(self): 
@@ -45,6 +48,7 @@ class FileServer:
             self.send(connSocket, item)
         connSocket.sendall("File done sending".encode())
 
+
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     def encodeFile(self, file):
 
@@ -65,14 +69,22 @@ class FileServer:
             
         return segments
             
-           
+    def downloadThread(self, connSocket):
+        while True:
+            data = connSocket.recv(1024).decode()
+            self.downloadQueue.put(data)
+
     #takes a list of encoded data segments from an incoming file transmission, returns a file object
     def decodeFile(self, segmentList):
         
-        file = open('temp.txt', 'w')
+        tempFileName = 'temp.txt'
+        
+        file = open(tempFileName, 'w')
         
         for segment in segmentList:
             file.write(segment.decode())
+            
+        file = open(tempFileName, 'r')
             
         return file
             
@@ -82,9 +94,6 @@ class FileServer:
         thread = threading.Thread(target = self.userThread, args=(connSocket, len(self._threads)))
         thread.start()
         self._threads.append(thread)
-
-    def requests(self, connSocket):
-        pass
         
     
     #

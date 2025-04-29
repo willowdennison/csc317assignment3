@@ -54,18 +54,16 @@ class ClientServer:
         fileName = input("File to Download: ")
         self.mainSocket.sendall('dwn\n\n' + fileName)
         
-        data = self.mainSocket.recv(1024).decode 
-
-        if data == "Error: File not found":
+        data = self.mainSocket.recv(1024).decode
+        if (data == "Error 404: File not found"):
             print("file not found on server")
         else:
-            with open("Downloaded_"):
-                pass
+            pass
         
-
 
    
     def deleteFile(self):
         file = input("Delete a File: ")
         self.mainSocket.sendall('del\n' + file)
+        #add confirmation
             
