@@ -59,7 +59,7 @@ class ClientServer:
         if data == "Error: File not found":
             print("file not found on server")
         else:
-            with open("Downloaded"):
+            with open("Downloaded_"):
                 pass
         
 
