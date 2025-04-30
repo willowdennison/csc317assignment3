@@ -99,17 +99,18 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
-         self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
+        self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
         
         segmentList = []
         while True:
             segment = self.mainSocket.recv(1024)
 
-            if not segment:
+            if segment == '':
                 break 
+            
             segmentList.append(segment)
 
-            if segmentList and segmentList[0].decode().startswith("Error 404"):
+            if segmentList[0].decode().startswith("Error 404"):
                 return "Error 404: File not found"
             
         file = self.decodeFile(segmentList)
