@@ -1,10 +1,11 @@
 from socket import *
 import os 
 
-class ClientServer:
+class fileClient:
     
     def __init__(self):
         self._port = 821 
+        self.segmentLength = 1024
 
         self.mainSocket = socket(AF_INET,SOCK_STREAM)
         print("Socket Connected")
@@ -42,9 +43,15 @@ class ClientServer:
 
 
     def uploadFile(self):
-        filePath = input("Enter File Path: ")
+        filePath = input('Enter path to the file to be uploaded: ')
         file = open(filePath, 'r')
-        segmentList = self.encodeFile(file)
+        
+        #designates 'fn:' as the header flag for a filename
+        fileName = 'fn:' + input('Enter filename to be stored on the server: ')
+        
+        headerList = [fileName.encode()]
+        
+        segmentList = headerList + self.encodeFile(file)
         #send each item of segmentList
 
 
