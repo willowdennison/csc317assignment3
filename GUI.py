@@ -89,6 +89,3 @@ class mainWindow:
             txt=  txt + '\n' + msg
         self.consoleLabel.config(text=txt)
 
-
-if __name__ == '__main__':
-    main=mainWindow(fileClient())#debug only, create a mainWindow in client and pass self
