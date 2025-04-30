@@ -2,7 +2,7 @@ from socket import *
 import os 
 import GUI
 
-class FileClient:
+class fileClient:
     
     #Constructor: Initializes connection and launches GUI
     def __init__(self):
@@ -101,7 +101,7 @@ class FileClient:
     def downloadFile(self, fileName):
         self.mainSocket.sendall(('dwn\n' + fileName).encode())
         
-        response = self.mainSocket.recv(1024).decode
+        response = self.mainSocket.recv(1024).decode()
         if response == "Error 404: File not found":
             return response
         else:
@@ -123,4 +123,4 @@ class FileClient:
         return response
 
 if __name__ == "__main__":
-    fc = FileClient()
+    fc = fileClient()
