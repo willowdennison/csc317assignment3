@@ -18,8 +18,6 @@ class FileServer:
         #set connection buffer size to 5
         self.mainSocket.listen(5)
         
-        self._threads = []
-        
         self.segmentLength = 1024
         
         self.downloadQueue = queue.Queue()
@@ -120,13 +118,12 @@ class FileServer:
     #would it be better to return the thread and get rid of the threads list entirely?
     #creates a thread, calls userThread, adds the thread the self._threads list
     def createUserThread(self, connSocket):
-        thread = threading.Thread(target = self.userThread, args=(connSocket, len(self._threads)))
+        thread = threading.Thread(target = self.userThread, args = (connSocket,))
         thread.start()
-        self._threads.append(thread)
         
     
     #
-    def userThread(self, conn, index):
+    def userThread(self, conn):
         
         timeStart = time.time()
         
@@ -134,7 +131,6 @@ class FileServer:
             
             if time.time > timeStart + 300:
                 conn.close()
-                self._threads.pop(index)
                 return
             
             data = self.receive(conn)
