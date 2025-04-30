@@ -10,10 +10,10 @@ class FileServer:
         self._port = 821
 
         self.mainSocket = socket(AF_INET, SOCK_STREAM)
-        print("Socket Connected")
+        print('Socket Connected')
         # Binds socket to port 
         self.mainSocket.bind(('', self._port))
-        print("Socket Bound")
+        print('Socket Bound')
 
         #set connection buffer size to 5
         self.mainSocket.listen(5)
@@ -28,7 +28,7 @@ class FileServer:
     #creates a thread for each client
     def connect(self): 
         connSocket, clientAddress = socket.accept()
-        print("Connected to:", clientAddress)
+        print('Connected to:', clientAddress)
         
         self.createUserThread(connSocket)
 
@@ -45,15 +45,23 @@ class FileServer:
         connSocket.send(message.encode())
         
         if print: 
-            print("Message sent:" + message)
+            print('Message sent:' + message)
 
 
-    def sendFile(self, filePath, connSocket): #only works for text files
-        file = open(filePath, "r")
-        segmentList = self.encodeFile(file)
+    def sendFile(self, filePath, connSocket, print = True): #only works for text files
+        file = open(filePath, 'r')
+        
+        #gets the filename from path and prepares header to be sent first
+        fileName = 'fn:' + filePath.split('/')[-1]
+        headerList = [fileName]
+        
+        segmentList = headerList + self.encodeFile(file)
+        
         for item in segmentList:
-            self.send(connSocket, item)
-        connSocket.sendall("File done sending".encode())
+            self.send(connSocket, item, print)
+            
+        if print: 
+            connSocket.sendall('File done sending'.encode())
 
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
@@ -69,25 +77,21 @@ class FileServer:
         segments = []
         currentSegment = 0
         
-        while currentSegment <= nSegments:
+        while currentSegment < nSegments:
             
             segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
             
         return segments
-  
-         
-    #should this be made part of user thread?
-    def downloadThread(self, connSocket):
-        while True:
-            data = connSocket.recv(1024).decode()
-            self.downloadQueue.put(data)
-
+    
+    
     #should we include another thing at the start of the segments with the filename? like a custom header
     #takes a list of encoded data segments from an incoming file transmission, returns a file object
     def decodeFile(self, segmentList):
         
-        fileName = 'temp.txt'
+        #first entry in segmentList is the filename, returns and removes it from the list, decodes
+        #it, and splits on : to remove the header label
+        fileName = segmentList.pop(0).decode().split(':')[1]
         
         file = open(fileName, 'w')
         
@@ -97,8 +101,17 @@ class FileServer:
         file = open(fileName, 'r')
             
         return file
+         
+    
+    #this is just going to put a bunch of random strings in a queue, this does not work at all 
+    #should this be made part of user thread?
+    def downloadThread(self, connSocket):
+        while True:
+            data = connSocket.recv(1024).decode()
+            self.downloadQueue.put(data)
+
             
-    #would it be better to return the thread?
+    #would it be better to return the thread and get rid of the threads list entirely?
     #creates a thread, calls userThread, adds the thread the self._threads list
     def createUserThread(self, connSocket):
         thread = threading.Thread(target = self.userThread, args=(connSocket, len(self._threads)))
@@ -115,7 +128,7 @@ class FileServer:
                 self._threads.pop(index)
                 return
             self.receive(conn)
-            tiStart = time.time()
+            timeStart = time.time()
    
             
 

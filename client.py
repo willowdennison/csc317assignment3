@@ -26,7 +26,7 @@ class fileClient:
         segments = []
         currentSegment = 0
         
-        while currentSegment <= nSegments:
+        while currentSegment < nSegments:
             
             segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
@@ -46,8 +46,8 @@ class fileClient:
         filePath = input('Enter path to the file to be uploaded: ')
         file = open(filePath, 'r')
         
-        #designates 'fn:' as the header flag for a filename
-        fileName = 'fn:' + input('Enter filename to be stored on the server: ')
+        #gets filename from file path and adds header flag
+        fileName = 'fn:' + filePath.split('/')[-1]
         
         headerList = [fileName.encode()]
         
