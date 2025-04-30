@@ -1,5 +1,6 @@
 from socket import *
 import os 
+import GUI
 
 class fileClient:
     
@@ -10,19 +11,14 @@ class fileClient:
         self.mainSocket = socket(AF_INET,SOCK_STREAM)
         print("Socket Connected")
 
-        self.mainSocket.bind = (("", self._port))
+        self.mainSocket.bind = (("", self._port))#bind isn't set
         print("Socket Bound")
 
         self.mainSocket.connect(("192.168.0.100", self._port))
         print("Connection Succesful")
 
-        print("What would you like to do?\n")
-        print("List\n")
-        print("Download\n")
-        print("Upload\n")
-        print("Delete\n")
+        self.interface = GUI(self)#mainWindow
         
-
 
      
     def encodeFile(self, file):
@@ -66,12 +62,11 @@ class fileClient:
         self.mainSocket("list\n".encode())
         data = self.mainSocket(1024).decode()
         print("\n Files available on server:")
-        print(data)
+        return(data)
 
 
-    def uploadFile(self):
-        filePath = input('Enter path to the file to be uploaded: ')
-        file = open(filePath, 'r')
+    def uploadFile(self, filePath):
+        file = open(filePath, 'r')#maybe move to try/catch block?
         
         #gets filename from file path and adds header flag
         fileName = 'fn:' + filePath.split('/')[-1]
@@ -83,10 +78,10 @@ class fileClient:
 
         for item in segmentList:
             self.mainSocket.sendall(item)
+        return(filePath + " Upload Confirmed")
 
 
-    def downloadFile(self):
-        fileName = input("File to Download: ")
+    def downloadFile(self, fileName):
         self.mainSocket.sendall('dwn\n' + fileName)
         
         data = self.mainSocket.recv(1024).decode
@@ -102,7 +97,8 @@ class fileClient:
         
         
    
-    def deleteFile(self):
-        file = input("Delete a File: ")
-        self.mainSocket.sendall('del\n' + file)
-        print("Deletion Succesful")
+    def deleteFile(self,fileName):
+        request = f"del\n{fileName}"
+        self.mainSocket.sendall(request.encode())
+        response = self.mainSocket.recv(1024).decode() 
+        return  response

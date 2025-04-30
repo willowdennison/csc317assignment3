@@ -19,8 +19,6 @@ class FileServer:
         self.mainSocket.listen(5)
         
         self.segmentLength = 1024
-        
-        self.downloadQueue = queue.Queue()
 
 
     #creates a thread for each client
@@ -36,30 +34,47 @@ class FileServer:
         data = connSocket.recv(1024).decode()
         return data
     
-    
-    #sends message to client, only sends encrypted strings
-    def send(self, connSocket, message, doPrint = True):
-        
-        connSocket.send(message.encode())
-        
-        if doPrint: 
-            print('Message sent:' + message)
 
 
+    #sends a file, filePath, to the client, sends a large amount of segments, client combines it into a txt file
     def sendFile(self, filePath, connSocket, doPrint = True): #only works for text files (currently)
         file = open(filePath, 'r')
         
         #gets the filename from path and prepares header to be sent first
-        fileName = 'fn:' + filePath.split('/')[-1]
+        fileName = ('fn:' + filePath.split('/')[-1]).encode()
         headerList = [fileName]
         
         segmentList = headerList + self.encodeFile(file)
         
         for item in segmentList:
-            self.send(connSocket, item, print)
+            connSocket.sendall(item)
             
-        if doPrint: 
-            connSocket.sendall(False.encode())
+            if doPrint:
+                print(item)
+            
+            
+        if doPrint:
+            print(filePath + ' finished sending')
+
+    
+    #deletes the file with path fileName
+    def delete(self, fileName):
+        if os.path.exists(fileName):
+            os.remove(fileName)
+        else:
+            print("File does not Exist") #Will be changed 
+
+
+    #lists all files in the files/ directory and formats them for display
+    def listDir(self):
+        dir = os.listdir('files/')
+        
+        formattedDir = ''
+        
+        for f in dir:
+            formattedDir.join(f + '\n')
+        
+        return formattedDir
 
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
@@ -91,7 +106,7 @@ class FileServer:
         
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
-        fileName = segmentList.pop(0).decode().split(':')[1]
+        fileName = 'files/' + segmentList.pop(0).decode().split(':')[1]
         
         file = open(fileName, 'w')
         
@@ -104,40 +119,32 @@ class FileServer:
          
 
     #take a client request and an active connection, call the appropriate functions, and send the server response
+    #handles download, delete, and list requests
     def processRequest(self, request, connSocket):
+        
         request = request.split(sep = '\n')
         requestType = request[0].strip()
-        fileName = request[1].strip()
+        
         match requestType:
+            
             case 'dwn':
                 fileName = request[1].strip()
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
-            case 'upl':
-                print("LATER") #DO THIS LATER
+                connSocket.sendall(fileName + ' Downloaded')
             case 'del':
                 fileName = request[1].strip()
                 print("Deleting "+ fileName)
+                self.delete(fileName) 
+                connSocket.sendall(fileName + ' Deleted')
+                
             case 'list':
                 print("listing")
-                self.listDir(fileName, connSocket)
+                connSocket.sendall(self.listDir())
+                connSocket.sendall('List Recieved'.encode())
+                
             case _:
                 raise(Exception)
-
-
-        pass
-
-
-        def listDir(self):
-            dir = os.listdir('files/')
-
-
-    #this is just going to put a bunch of random strings in a queue, this does not work at all 
-    #should this be made part of user thread?
-    def downloadThread(self, connSocket):
-        while True:
-            data = connSocket.recv(1024).decode()
-            self.downloadQueue.put(data)
 
             
     #would it be better to return the thread and get rid of the threads list entirely?
@@ -147,53 +154,48 @@ class FileServer:
         thread.start()
         
     
-    #
+    #thread created for each connection to monitor requests, process them, and 
     def userThread(self, conn):
         
         timeStart = time.time()
         
         while True:
             
-            if time.time > timeStart + 300:
+            if time.time() > timeStart + 300:
                 conn.close()
                 return
             
             data = self.receive(conn)
             
-            segmentList = []
-            
             #if sending a filename, signifying that a file transmission is starting
             if data.split(':')[0] == 'fn':
-                segmentList.append(data)
-                
-                transmissionFinished = False
-                
-                while not transmissionFinished: 
-                    data = self.receive(conn)
-                    
-                    #if this is the end of the file
-                    if data == '':
-                        transmissionFinished = True
-                        self.decodeFile(segmentList)
-                        break
-                    
-                    segmentList.append(data)
+                self.recieveFile(conn)
                 
             else:
                 self.processRequest(data, conn)
             
             timeStart = time.time()
     
-    #deletes the file with path fileName
-    def delete(self, fileName):
-        if os.path.exists(fileName):
-            os.remove(fileName)
-        else:
-            print("File does not Exist") #Will be changed 
-    
-   
+  
+    #takes connection object, recieves, and saves file to directory
+    def recieveFile(self, conn):
+        
+        segmentList = []
+        
+        segmentList.append(data)
+                
+        transmissionFinished = False
+                
+        while not transmissionFinished: 
+            data = self.receive(conn)
+                    
+            #if this is the end of the file
+            if data == '':
+                transmissionFinished = True
+                self.decodeFile(segmentList)
+                break
+                    
+            segmentList.append(data)
             
+        conn.sendall('File recieved')
 
-main = FileServer()
-
-print(main.readEncodeFile('test.txt'))
