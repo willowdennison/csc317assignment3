@@ -108,6 +108,7 @@ class FileClient:
             if segment == '':
                 break 
             
+            print(segment.decode())
             segmentList.append(segment)
 
             if segmentList[0].decode().startswith("Error 404"):
