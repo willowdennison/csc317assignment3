@@ -24,6 +24,7 @@ class FileServer:
         
         self.downloadQueue = queue.Queue()
 
+
     #creates a thread for each client
     def connect(self): 
         connSocket, clientAddress = socket.accept()
@@ -31,15 +32,21 @@ class FileServer:
         
         self.createUserThread(connSocket)
 
+
     #receives messages from client for debugging and handshakes
     def receive(self, connSocket): 
         data = connSocket.recv(1024).decode()
         return data
     
+    
     #sends message to client, only sends encrypted strings
-    def send(self, connSocket, message):
+    def send(self, connSocket, message, print = True):
+        
         connSocket.send(message.encode())
-        print("Message sent:" + message)
+        
+        if print: 
+            print("Message sent:" + message)
+
 
     def sendFile(self, filePath, connSocket): #only works for text files
         file = open(filePath, "r")
@@ -68,11 +75,14 @@ class FileServer:
             currentSegment += 1
             
         return segments
-            
+  
+         
+    #should this be made part of user thread?
     def downloadThread(self, connSocket):
         while True:
             data = connSocket.recv(1024).decode()
             self.downloadQueue.put(data)
+
 
     #takes a list of encoded data segments from an incoming file transmission, returns a file object
     def decodeFile(self, segmentList):
@@ -106,6 +116,7 @@ class FileServer:
                 return
             self.receive(conn)
             tiStart = time.time()
+   
             
 
 main = FileServer()
