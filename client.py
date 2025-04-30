@@ -2,7 +2,7 @@ from socket import *
 import os 
 import GUI
 
-class fileClient:
+class FileClient:
     
     #Constructor: Initializes connection and launches GUI
     def __init__(self):
@@ -123,4 +123,4 @@ class fileClient:
         return response
 
 if __name__ == "__main__":
-    fc = fileClient()
+    fc = FileClient()
