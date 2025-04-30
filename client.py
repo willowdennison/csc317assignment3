@@ -26,7 +26,7 @@ class fileClient:
         segments = []
         currentSegment = 0
         
-        while currentSegment < nSegments:
+        while currentSegment <= nSegments:
             
             segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1

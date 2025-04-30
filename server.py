@@ -77,7 +77,8 @@ class FileServer:
         segments = []
         currentSegment = 0
         
-        while currentSegment < nSegments:
+        #<= means that the last segment will always be an empty string, showing that the file has been fully sent
+        while currentSegment <= nSegments:
             
             segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
@@ -102,6 +103,11 @@ class FileServer:
             
         return file
          
+
+    #take a client request and an active connection, call the appropriate functions, and send the server response
+    def processRequest(self, request, conn):
+        pass
+
     
     #this is just going to put a bunch of random strings in a queue, this does not work at all 
     #should this be made part of user thread?
@@ -121,13 +127,40 @@ class FileServer:
     
     #
     def userThread(self, conn, index):
+        
         timeStart = time.time()
+        
         while True:
+            
             if time.time > timeStart + 300:
                 conn.close()
                 self._threads.pop(index)
                 return
-            self.receive(conn)
+            
+            data = self.receive(conn)
+            
+            segmentList = []
+            
+            #if sending a filename, signifying that a file transmission is starting
+            if data.split(':')[0] == 'fn':
+                segmentList.append(data)
+                
+                transmissionFinished = False
+                
+                while not transmissionFinished: 
+                    data = self.receive(conn)
+                    
+                    #if this is the end of the file
+                    if data == '':
+                        transmissionFinished = True
+                        self.decodeFile(segmentList)
+                        break
+                    
+                    segmentList.append(data)
+                
+            else:
+                self.processRequest(data, conn)
+            
             timeStart = time.time()
    
             
