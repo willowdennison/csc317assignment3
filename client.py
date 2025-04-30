@@ -106,7 +106,7 @@ class FileClient:
         receiving=True
         while receiving:
             segment = self.mainSocket.recv(1024)
-            if segment.decode() == fileName + " Downloaded":
+            if  fileName + " Downloaded" in segment.decode():
                 receiving=False 
             
             segmentList.append(segment)
