@@ -1,13 +1,13 @@
 from tkinter import *
 from tkinter import ttk
-from client import fileClient#debug? not sure if needed in final version
+from client import FileClient#debug? not sure if needed in final version
 
 
 class mainWindow:
 
-    def __init__(self, fileClient):
+    def __init__(self, FileClient):
         
-        self.fileClient = fileClient
+        self.fileClient = FileClient
 
         root=Tk()
 
