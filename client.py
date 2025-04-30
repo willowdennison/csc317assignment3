@@ -45,7 +45,6 @@ class FileClient:
 
 
     def decodeFile(self, segmentList):
-        
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
         fileName = segmentList.pop(0).decode().split(':')[1]
@@ -99,23 +98,23 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
+        print("before send")
         self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
-        
+        print("after send")
         segmentList = []
-        while True:
+        receiving=True
+        while receiving:
             segment = self.mainSocket.recv(1024)
-
-            if segment == '':
-                break 
+            if segment.decode()[:3] == "end":
+                receiving=False 
             
             print(segment.decode())
             segmentList.append(segment)
 
             if segmentList[0].decode().startswith("Error 404"):
                 return "Error 404: File not found"
-            
         file = self.decodeFile(segmentList)
-        return f"{file.name} Downloaded"
+        return f"{file.name} Downloaded says client"
 
         
     #sends a request to server to delete file (on server side), gets a response from the server
