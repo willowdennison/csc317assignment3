@@ -105,7 +105,7 @@ class FileClient:
         receiving=True
         while receiving:
             segment = self.mainSocket.recv(1024)
-            if segment.decode()[:3] == "end":
+            if segment.decode()[0:2] == "end":
                 receiving=False 
             
             print(segment.decode())
@@ -113,7 +113,7 @@ class FileClient:
 
             if segmentList[0].decode().startswith("Error 404"):
                 return "Error 404: File not found"
-        file = self.decodeFile(segmentList)
+        self.decodeFile(segmentList)
         return f"{fileName} Downloaded says client"
 
         
