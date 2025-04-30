@@ -168,17 +168,17 @@ class FileServer:
                 fileName = request[1].strip()
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
-                connSocket.sendall(fileName + ' Downloaded')
+                connSocket.sendall((fileName + ' Downloaded').encode())
                 
             case 'del':
                 fileName = request[1].strip()
                 print("Deleting "+ fileName)
                 self.delete(fileName) 
-                connSocket.sendall(fileName + ' Deleted')
+                connSocket.sendall((fileName + ' Deleted').encode())
                 
             case 'list':
                 print("listing")
-                connSocket.sendall(self.listDir())
+                connSocket.sendall(self.listDir().encode())
                 connSocket.sendall('List Recieved'.encode())
                 
             case _:
