@@ -20,7 +20,8 @@ class fileClient:
         print("List\n")
         print("Download\n")
         print("Upload\n")
-        print("")
+        print("Delete\n")
+        
 
 
      
