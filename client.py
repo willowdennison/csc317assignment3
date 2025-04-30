@@ -99,20 +99,22 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
-        self.mainSocket.sendall(('dwn\n' + fileName).encode())
+         self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
         
-        response = self.mainSocket.recv(1024).decode()
-        if response == "Error 404: File not found":
-            return response
-        else:
-            with open(f"Downloaded_{fileName}", "w") as download:
-                while True:
-                    
-                    fileSize = self.mainSocket.recv(self.segmentLength)
-                    if not fileSize:
-                        break
-                    download.write(fileSize.decode())
-   
+        segmentList = []
+        while True:
+            segment = self.mainSocket.recv(1024)
+
+            if not segment:
+                break 
+            segmentList.append(segment)
+
+            if segmentList and segmentList[0].decode().startswith("Error 404"):
+                return "Error 404: File not found"
+            
+        file = self.decodeFile(segmentList)
+        return f"{file.name} Downloaded"
+
         
     #sends a request to server to delete file (on server side), gets a response from the server
     def deleteFile(self,fileName):
