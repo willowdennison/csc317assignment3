@@ -4,14 +4,16 @@ import GUI
 
 class fileClient:
     
+    #Constructor: Initializes connection and launches GUI
     def __init__(self):
+        
         self._port = 821 
         self.segmentLength = 1024
 
         self.mainSocket = socket(AF_INET,SOCK_STREAM)
         print("Socket Connected")
 
-        self.mainSocket.bind = (("", self._port))#bind isn't set
+        self.mainSocket.bind(("", self._port))
         print("Socket Bound")
 
         self.mainSocket.connect(("192.168.0.100", self._port))
@@ -20,7 +22,8 @@ class fileClient:
         self.interface = GUI(self)#mainWindow
         
 
-     
+    #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
+    #does not add header with filename
     def encodeFile(self, file):
 
         file.seek(0, os.SEEK_END)
@@ -59,14 +62,23 @@ class fileClient:
 
     # request the list of files available on the serve and prints them
     def listFile(self):
-        self.mainSocket("list\n".encode())
-        data = self.mainSocket(1024).decode()
-        print("\n Files available on server:")
-        return(data)
+        
+        self.mainSocket.sendall("list\n".encode())
+        
+        data = self.mainSocket.recv(1024).decode()
+        
+        dirList = "Files available on server: \n" + data
+        
+        return dirList
 
-
+    # Sends file path and file contents
     def uploadFile(self, filePath):
-        file = open(filePath, 'r')#maybe move to try/catch block?
+        
+        if os.path.exists(filePath): 
+            file = open(filePath, 'r')
+            
+        else:
+            raise FileNotFoundError
         
         #gets filename from file path and adds header flag
         fileName = 'fn:' + filePath.split('/')[-1]
@@ -78,27 +90,33 @@ class fileClient:
 
         for item in segmentList:
             self.mainSocket.sendall(item)
-        return(filePath + " Upload Confirmed")
+        
+        response = self.mainSocket.recv(1024).decode()
+        
+        return response
 
-
+    #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
         self.mainSocket.sendall('dwn\n' + fileName)
         
-        data = self.mainSocket.recv(1024).decode
-        if (data == "Error 404: File not found"):
-            print("file not found on server")
+        response = self.mainSocket.recv(1024).decode
+        if response == "Error 404: File not found":
+            return response
         else:
             with open(f"Downloaded_{fileName}", "w") as download:
                 while True:
+                    
                     fileSize = self.mainSocket.recv(self.segmentLength)
                     if not fileSize:
                         break
                     download.write(fileSize.decode())
         
-        
-   
+    #sends a request to server to delete file (on server side), gets a response from the server
     def deleteFile(self,fileName):
         request = f"del\n{fileName}"
         self.mainSocket.sendall(request.encode())
+       
         response = self.mainSocket.recv(1024).decode() 
-        return  response
+        return response
+
+        

@@ -2,7 +2,6 @@ from socket import *
 import threading
 import time
 import os
-import queue
 
 class FileServer:
 
@@ -19,6 +18,9 @@ class FileServer:
         self.mainSocket.listen(5)
         
         self.segmentLength = 1024
+        
+        connectThread = threading.Thread(target = self.connect)
+        connectThread.start()
 
 
     #creates a thread for each client
@@ -35,10 +37,23 @@ class FileServer:
         return data
     
 
+    #open file with checking for nonexistent files
+    def openFile(path, permissions):
+        if os.path.exists(path):
+            return open(path, permissions)
+        else: 
+            raise(FileNotFoundError)
+
 
     #sends a file, filePath, to the client, sends a large amount of segments, client combines it into a txt file
     def sendFile(self, filePath, connSocket, doPrint = True): #only works for text files (currently)
-        file = open(filePath, 'r')
+        
+        try:
+            file = self.openFile(filePath, 'r')
+        
+        except FileNotFoundError:
+            connSocket.sendall('Error 404: File not found')
+            return
         
         #gets the filename from path and prepares header to be sent first
         fileName = ('fn:' + filePath.split('/')[-1]).encode()
@@ -77,6 +92,28 @@ class FileServer:
         return formattedDir
 
 
+    #takes connection object, recieves, and saves file to directory
+    def recieveFile(self, conn):
+        
+        segmentList = []
+        
+        segmentList.append(data)
+                
+        transmissionFinished = False
+                
+        while not transmissionFinished: 
+            data = self.receive(conn)
+                    
+            #if this is the end of the file
+            if data == '':
+                transmissionFinished = True
+                self.decodeFile(segmentList)
+                break
+                    
+            segmentList.append(data)
+            
+        conn.sendall('File recieved')
+
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename
     def encodeFile(self, file):
@@ -108,12 +145,12 @@ class FileServer:
         #it, and splits on : to remove the header label
         fileName = 'files/' + segmentList.pop(0).decode().split(':')[1]
         
-        file = open(fileName, 'w')
+        file = self.openFile(fileName, 'w')
         
         for segment in segmentList:
             file.write(segment.decode())
             
-        file = open(fileName, 'r')
+        file = self.openFile(fileName, 'r')
             
         return file
          
@@ -132,6 +169,7 @@ class FileServer:
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
                 connSocket.sendall(fileName + ' Downloaded')
+                
             case 'del':
                 fileName = request[1].strip()
                 print("Deleting "+ fileName)
@@ -175,27 +213,5 @@ class FileServer:
                 self.processRequest(data, conn)
             
             timeStart = time.time()
-    
-  
-    #takes connection object, recieves, and saves file to directory
-    def recieveFile(self, conn):
-        
-        segmentList = []
-        
-        segmentList.append(data)
-                
-        transmissionFinished = False
-                
-        while not transmissionFinished: 
-            data = self.receive(conn)
-                    
-            #if this is the end of the file
-            if data == '':
-                transmissionFinished = True
-                self.decodeFile(segmentList)
-                break
-                    
-            segmentList.append(data)
-            
-        conn.sendall('File recieved')
 
+main = FileServer()
