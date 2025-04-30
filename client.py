@@ -123,4 +123,4 @@ class FileClient:
         return response
 
 if __name__ == "__main__":
-    fc = fileClient()
+    fc = FileClient()
