@@ -139,6 +139,8 @@ class FileServer:
             segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
             
+        segments[-1] = 'end'.encode()
+        
         return segments
     
     
