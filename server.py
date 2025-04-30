@@ -25,10 +25,13 @@ class FileServer:
 
     #creates a thread for each client
     def connect(self): 
-        connSocket, clientAddress = self.mainSocket.accept()
-        print('Connected to:', clientAddress)
         
-        self.createUserThread(connSocket)
+        while True:
+            
+            connSocket, clientAddress = self.mainSocket.accept()
+            print('Connected to:', clientAddress)
+            
+            self.createUserThread(connSocket)
 
 
     #receives messages from client for debugging and handshakes
@@ -38,7 +41,7 @@ class FileServer:
     
 
     #open file with checking for nonexistent files
-    def openFile(path, permissions):
+    def openFile(self, path, permissions):
         if os.path.exists(path):
             return open(path, permissions)
         else: 
@@ -48,11 +51,13 @@ class FileServer:
     #sends a file, filePath, to the client, sends a large amount of segments, client combines it into a txt file
     def sendFile(self, filePath, connSocket, doPrint = True): #only works for text files (currently)
         
+        filePath = 'files/' + filePath
+        
         try:
             file = self.openFile(filePath, 'r')
         
         except FileNotFoundError:
-            connSocket.sendall('Error 404: File not found')
+            connSocket.sendall('Error 404: File not found'.encode())
             return
         
         #gets the filename from path and prepares header to be sent first
@@ -82,12 +87,12 @@ class FileServer:
 
     #lists all files in the files/ directory and formats them for display
     def listDir(self):
-        dir = os.listdir('files/')
+        dir = os.listdir('files')
         
         formattedDir = ''
         
         for f in dir:
-            formattedDir.join(f + '\n')
+            formattedDir = formattedDir + f + '\n'
         
         return formattedDir
 
@@ -178,11 +183,13 @@ class FileServer:
                 
             case 'list':
                 print("listing")
-                connSocket.sendall(self.listDir().encode())
+                dir = self.listDir()
+                print(dir)
+                connSocket.sendall(dir.encode())
                 connSocket.sendall('List Recieved'.encode())
                 
             case _:
-                raise(Exception)
+                connSocket.sendall('Invalid command'.encode())
 
             
     #would it be better to return the thread and get rid of the threads list entirely?
