@@ -87,9 +87,9 @@ class FileServer:
     #takes a list of encoded data segments from an incoming file transmission, returns a file object
     def decodeFile(self, segmentList):
         
-        tempFileName = 'temp.txt'
+        fileName = 'temp.txt'
         
-        file = open(tempFileName, 'w')
+        file = open(fileName, 'w')
         
         for segment in segmentList:
             file.write(segment.decode())
