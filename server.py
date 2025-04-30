@@ -94,7 +94,7 @@ class FileServer:
         for segment in segmentList:
             file.write(segment.decode())
             
-        file = open(tempFileName, 'r')
+        file = open(fileName, 'r')
             
         return file
             
