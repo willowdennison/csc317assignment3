@@ -81,7 +81,7 @@ class FileClient:
             raise FileNotFoundError
         
         #gets filename from file path and adds header flag
-        fileName = 'fn:' + filePath.split('/')[-1]
+        fileName = 'fn:' + filePath.split('/')[-1] + ':'
         
         headerList = [fileName.encode()]
         
