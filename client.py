@@ -114,7 +114,7 @@ class FileClient:
             if segmentList[0].decode().startswith("Error 404"):
                 return "Error 404: File not found"
         file = self.decodeFile(segmentList)
-        return f"{file.name} Downloaded says client"
+        return f"{fileName} Downloaded says client"
 
         
     #sends a request to server to delete file (on server side), gets a response from the server
