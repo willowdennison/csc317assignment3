@@ -175,6 +175,7 @@ class FileServer:
                 fileName = request[1].strip()
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
+                time.sleep(0.1)
                 connSocket.sendall((fileName + ' Downloaded').encode())
                 
             case 'del':
