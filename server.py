@@ -83,7 +83,7 @@ class FileServer:
             data = connSocket.recv(1024).decode()
             self.downloadQueue.put(data)
 
-
+    #should we include another thing at the start of the segments with the filename? like a custom header
     #takes a list of encoded data segments from an incoming file transmission, returns a file object
     def decodeFile(self, segmentList):
         
@@ -98,7 +98,7 @@ class FileServer:
             
         return file
             
-        
+    #would it be better to return the thread?
     #creates a thread, calls userThread, adds the thread the self._threads list
     def createUserThread(self, connSocket):
         thread = threading.Thread(target = self.userThread, args=(connSocket, len(self._threads)))
