@@ -121,3 +121,6 @@ class fileClient:
        
         response = self.mainSocket.recv(1024).decode() 
         return response
+
+if __name__ == "__main__":
+    fc = fileClient()
