@@ -61,7 +61,7 @@ class FileServer:
             return
         
         #gets the filename from path and prepares header to be sent first
-        fileName = ('fn:' + filePath.split('/')[-1]).encode()
+        fileName = ('fn:' + filePath.split('/')[-1] + ':').encode()
         headerList = [fileName]
         
         segmentList = headerList + self.encodeFile(file)
