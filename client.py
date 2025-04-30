@@ -35,7 +35,7 @@ class ClientServer:
 
     # request the list of files available on the serve and prints them
     def listFile(self):
-        self.mainSocket("list \n".encode())
+        self.mainSocket("list\n".encode())
         data = self.mainSocket(1024).decode()
         print("\n Files available on server:")
         print(data)
@@ -50,7 +50,7 @@ class ClientServer:
 
     def downloadFile(self):
         fileName = input("File to Download: ")
-        self.mainSocket.sendall('dwn\n\n' + fileName)
+        self.mainSocket.sendall('dwn\n' + fileName)
         
         data = self.mainSocket.recv(1024).decode
         if (data == "Error 404: File not found"):
