@@ -12,8 +12,7 @@ class ClientServer:
         self.mainSocket.bind = (("", self._port))
         print("Socket Bound")
 
-
-        
+     
     def encodeFile(self, file):
 
         file.seek(0, os.SEEK_END)
@@ -33,6 +32,7 @@ class ClientServer:
             
         return segments
 
+
     # request the list of files available on the serve and prints them
     def listFile(self):
         self.mainSocket("list \n".encode())
@@ -48,8 +48,6 @@ class ClientServer:
         #send each item of segmentList
 
 
-
-
     def downloadFile(self):
         fileName = input("File to Download: ")
         self.mainSocket.sendall('dwn\n\n' + fileName)
@@ -60,7 +58,6 @@ class ClientServer:
         else:
             pass
         
-
    
     def deleteFile(self):
         file = input("Delete a File: ")
