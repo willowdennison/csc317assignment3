@@ -13,6 +13,16 @@ class fileClient:
         self.mainSocket.bind = (("", self._port))
         print("Socket Bound")
 
+        self.mainSocket.connect(("192.168.0.100", self._port))
+        print("Connection Succesful")
+
+        print("What would you like to do?\n")
+        print("List\n")
+        print("Download\n")
+        print("Upload\n")
+        print("")
+
+
      
     def encodeFile(self, file):
 
@@ -32,6 +42,22 @@ class fileClient:
             currentSegment += 1
             
         return segments
+
+
+    def decodeFile(self, segmentList):
+        
+        #first entry in segmentList is the filename, returns and removes it from the list, decodes
+        #it, and splits on : to remove the header label
+        fileName = segmentList.pop(0).decode().split(':')[1]
+        
+        file = open(fileName, 'w')
+        
+        for segment in segmentList:
+            file.write(segment.decode())
+            
+        file = open(fileName, 'r')
+            
+        return file
 
 
     # request the list of files available on the serve and prints them
@@ -54,6 +80,9 @@ class fileClient:
         segmentList = headerList + self.encodeFile(file)
         #send each item of segmentList
 
+        for item in segmentList:
+            self.mainSocket.sendall(item)
+
 
     def downloadFile(self):
         fileName = input("File to Download: ")
@@ -63,11 +92,16 @@ class fileClient:
         if (data == "Error 404: File not found"):
             print("file not found on server")
         else:
-            pass
+            with open(f"Downloaded_{fileName}", "w") as download:
+                while True:
+                    fileSize = self.mainSocket.recv(self.segmentLength)
+                    if not fileSize:
+                        break
+                    download.write(fileSize.decode())
+        
         
    
     def deleteFile(self):
         file = input("Delete a File: ")
         self.mainSocket.sendall('del\n' + file)
-        #add confirmation
-            
+        print("Deletion Succesful")

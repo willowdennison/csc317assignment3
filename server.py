@@ -25,7 +25,7 @@ class FileServer:
 
     #creates a thread for each client
     def connect(self): 
-        connSocket, clientAddress = socket.accept()
+        connSocket, clientAddress = self.mainSocket.accept()
         print('Connected to:', clientAddress)
         
         self.createUserThread(connSocket)
@@ -38,15 +38,15 @@ class FileServer:
     
     
     #sends message to client, only sends encrypted strings
-    def send(self, connSocket, message, print = True):
+    def send(self, connSocket, message, doPrint = True):
         
         connSocket.send(message.encode())
         
-        if print: 
+        if doPrint: 
             print('Message sent:' + message)
 
 
-    def sendFile(self, filePath, connSocket, print = True): #only works for text files
+    def sendFile(self, filePath, connSocket, doPrint = True): #only works for text files (currently)
         file = open(filePath, 'r')
         
         #gets the filename from path and prepares header to be sent first
@@ -58,11 +58,12 @@ class FileServer:
         for item in segmentList:
             self.send(connSocket, item, print)
             
-        if print: 
-            connSocket.sendall('File done sending'.encode())
+        if doPrint: 
+            connSocket.sendall(False.encode())
 
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
+    #does not add header with filename
     def encodeFile(self, file):
 
         file.seek(0, os.SEEK_END)
@@ -103,10 +104,34 @@ class FileServer:
          
 
     #take a client request and an active connection, call the appropriate functions, and send the server response
-    def processRequest(self, request, conn):
+    def processRequest(self, request, connSocket):
+        request = request.split(sep = '\n')
+        requestType = request[0].strip()
+        fileName = request[1].strip()
+        match requestType:
+            case 'dwn':
+                fileName = request[1].strip()
+                print("Downloading " + fileName)
+                self.sendFile(fileName, connSocket)
+            case 'upl':
+                print("LATER") #DO THIS LATER
+            case 'del':
+                fileName = request[1].strip()
+                print("Deleting "+ fileName)
+            case 'list':
+                print("listing")
+                self.listDir(fileName, connSocket)
+            case _:
+                raise(Exception)
+
+
         pass
 
-    
+
+        def listDir(self):
+            dir = os.listdir('files/')
+
+
     #this is just going to put a bunch of random strings in a queue, this does not work at all 
     #should this be made part of user thread?
     def downloadThread(self, connSocket):
@@ -158,6 +183,14 @@ class FileServer:
                 self.processRequest(data, conn)
             
             timeStart = time.time()
+    
+    #deletes the file with path fileName
+    def delete(self, fileName):
+        if os.path.exists(fileName):
+            os.remove(fileName)
+        else:
+            print("File does not Exist") #Will be changed 
+    
    
             
 
