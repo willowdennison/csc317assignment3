@@ -71,6 +71,7 @@ class fileClient:
         
         return dirList
 
+
     # Sends file path and file contents
     def uploadFile(self, filePath):
         
@@ -95,6 +96,7 @@ class fileClient:
         
         return response
 
+
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
         self.mainSocket.sendall('dwn\n' + fileName)
@@ -110,6 +112,7 @@ class fileClient:
                     if not fileSize:
                         break
                     download.write(fileSize.decode())
+   
         
     #sends a request to server to delete file (on server side), gets a response from the server
     def deleteFile(self,fileName):
@@ -118,5 +121,3 @@ class fileClient:
        
         response = self.mainSocket.recv(1024).decode() 
         return response
-
-        
