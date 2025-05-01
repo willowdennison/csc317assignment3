@@ -11,7 +11,7 @@ class FileServer:
         self.mainSocket = socket(AF_INET, SOCK_STREAM)
         print('Socket Connected')
         # Binds socket to port 
-        self.mainSocket.bind(('', self._port))
+        self.mainSocket.bind(('', self._port)) #use 127.0.0.1 in the first argument to connect with your own pc
         print('Socket Bound')
 
         #set connection buffer size to 5
@@ -72,7 +72,10 @@ class FileServer:
             
             if doPrint:
                 print(item)
-            
+
+        ack = self.receive(connSocket)
+        if ack == 'no segments to decode':
+            print("file failed to send")
             
         if doPrint:
             print(filePath + ' finished sending')
@@ -102,21 +105,21 @@ class FileServer:
     def recieveFile(self, conn, firstPacket):
         
         segmentList = [firstPacket]
-                
-        transmissionFinished = False
-                
-        while not transmissionFinished: 
+            
+        while True: 
             data = self.receive(conn)
                     
             #if this is the end of the file
-            if data == '':
-                transmissionFinished = True
+            if data == 'file sent':
                 self.decodeFile(segmentList)
-                break
+                
+                conn.sendall('File recieved')
+                
+                print("File Received")
+
+                return 
                     
             segmentList.append(data)
-            
-        conn.sendall('File recieved')
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename
@@ -142,7 +145,8 @@ class FileServer:
     
     
     #should we include another thing at the start of the segments with the filename? like a custom header
-    #takes a list of encoded data segments from an incoming file transmission, returns a file object
+    #takes a list of encoded data segments from an incoming file transmission,
+    #stores the file at the filename in the first segment,  returns a file object
     def decodeFile(self, segmentList):
         
         #first entry in segmentList is the filename, returns and removes it from the list, decodes

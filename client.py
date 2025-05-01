@@ -1,6 +1,7 @@
 from socket import *
 import os 
 import GUI
+import time
 
 class FileClient:
     
@@ -48,7 +49,15 @@ class FileClient:
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
         print(segmentList)
-        fileName = segmentList.pop(0).decode().split(':')[1]
+        
+        #quick fix:
+        try:
+            fileName = segmentList.pop(0).decode().split(':')[1] #segment list is empty?? (Fix on thursday)
+            self.mainSocket.sendall('File successfully sent')
+            
+        except IndexError:
+            self.mainSocket.sendall('no segments to decode'.encode())
+            return
         
         file = open(fileName, 'w')
         
@@ -87,10 +96,13 @@ class FileClient:
         headerList = [fileName.encode()]
         
         segmentList = headerList + self.encodeFile(file)
-        #send each item of segmentList
 
         for item in segmentList:
             self.mainSocket.sendall(item)
+        
+        #ensures that packets don't get combined by tcp
+        time.sleep(0.1)
+        self.mainSocket.sendall('file sent'.encode())
         
         response = self.mainSocket.recv(1024).decode()
         
@@ -99,22 +111,27 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
+        
         print("before send")
         self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
         print("after send")
+        
         segmentList = []
-        receiving=True
+        
+        receiving = True
+        
         while receiving:
             segment = self.mainSocket.recv(1024)
+            
             if  fileName + " Downloaded" in segment.decode():
-                receiving=False 
+                receiving = False 
             
             segmentList.append(segment)
 
             if segmentList[0].decode().startswith("Error 404"):
                 return "Error 404: File not found"
             
-        file = self.decodeFile(segmentList)
+        self.decodeFile(segmentList) 
         return f"{fileName} Downloaded says client"
 
         
