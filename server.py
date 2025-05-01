@@ -47,8 +47,12 @@ class FileServer:
 
         print(path)
 
-        if os.path.exists(path):
+        if permissions == 'w':
             return open(path, permissions)
+        
+        elif os.path.exists(path):
+            return open(path, permissions)
+        
         else: 
             raise(FileNotFoundError)
 
@@ -152,7 +156,7 @@ class FileServer:
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
         
-        file = open(fileName, 'w')
+        file = self.openFile(fileName, 'w')
         
         for segment in segmentList:
             file.write(segment)
@@ -219,8 +223,9 @@ class FileServer:
             data = self.receive(conn)
             
             #if sending a filename, signifying that a file transmission is starting
-            if data.split(':')[0] == 'fn':
-                self.recieveFile(conn, data)
+            data = data.split(':')
+            if data[0] == 'fn':
+                self.recieveFile(conn, data[1])
                 
             else:
                 self.processRequest(data, conn)
