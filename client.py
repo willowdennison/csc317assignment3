@@ -48,15 +48,24 @@ class FileClient:
     def decodeFile(self, segmentList, fileName):
         
         print(segmentList)
-        #quick fix:
-        
 
-        file = open(fileName, 'w')
+        fileName = 'Downloaded_' + fileName
+    
+        filePath = os.getcwd()
+        
+        if '\\' in filePath:
+            char = '\\'
+        else:
+            char = '/'
+        
+        filePath = filePath + char + 'files' + char + fileName
+
+        file = open(filePath, 'w')
         
         for segment in segmentList:
             file.write(segment)
             
-        file = open(fileName, 'r')
+        file = open(filePath, 'r')
         
         return file
 
@@ -66,21 +75,20 @@ class FileClient:
         self.mainSocket.send("list\n".encode())
         
         data = self.mainSocket.recv(1024).decode()
+       
         dirList = "Files available on server: \n" + data
 
         return dirList
 
 
-    # Sends file path and file contents
+    # Sends file path and file contents,#gets filename from file path and adds header flag
     def uploadFile(self, filePath):
         if os.path.exists(filePath): 
             file = open(filePath, 'r')
             
-        
         else:
             raise FileNotFoundError
         
-        #gets filename from file path and adds header flag
         if '/' in filePath: #mac and windows have different file paths, this checks if the computer is on windows/mac
             char = '/'
         else: 
@@ -99,8 +107,6 @@ class FileClient:
             print(item)
         
         self.mainSocket.send('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
-        
-        #response = self.mainSocket.recv(1024).decode()
         
         return filePath + " uploaded"
 
@@ -129,7 +135,9 @@ class FileClient:
         
     #sends a request to server to delete file (on server side), gets a response from the server
     def deleteFile(self,fileName):
+        
         request = f"del\n{fileName}"
+        
         self.mainSocket.send(request.encode())
        
         return (fileName + " Deleted")

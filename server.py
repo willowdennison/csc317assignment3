@@ -181,29 +181,21 @@ class FileServer:
                 fileName = request[1].strip()
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
-                #time.sleep(0.1)
-                #connSocket.send('a'.encode())
-                #time.sleep(0.1)
                 
             case 'del':
                 fileName = request[1].strip()
                 print("Deleting "+ fileName)
                 self.delete(fileName) 
-                #time.sleep(0.1)
-                #connSocket.send((fileName + ' Deleted').encode())
-                #time.sleep(0.1)
-                
+                   
             case 'list':
                 print("listing")
                 dir = self.listDir()
                 print(dir)
                 connSocket.send(dir.encode())
-                #time.sleep(0.1)
-                #time.sleep(0.1)
                 
             case _:
                 connSocket.send('Invalid command'.encode())
-                #time.sleep(0.1)
+                
 
             
     #would it be better to return the thread and get rid of the threads list entirely?
