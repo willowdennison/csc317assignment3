@@ -118,21 +118,14 @@ class FileClient:
         
         segmentList = []
         
-        receiving = True
-        
-        while receiving:
+        while True:
             segment = self.mainSocket.recv(1024)
             
             if  fileName + " Downloaded" in segment.decode():
-                receiving = False 
+                self.decodeFile(segmentList) 
+                return f"{fileName} Downloaded says client"
             
             segmentList.append(segment)
-
-            if segmentList[0].decode().startswith("Error 404"):
-                return "Error 404: File not found"
-            
-        self.decodeFile(segmentList) 
-        return f"{fileName} Downloaded says client"
 
         
     #sends a request to server to delete file (on server side), gets a response from the server
