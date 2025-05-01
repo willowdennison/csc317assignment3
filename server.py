@@ -223,9 +223,9 @@ class FileServer:
             data = self.receive(conn)
             
             #if sending a filename, signifying that a file transmission is starting
-            data = data.split(':')
-            if data[0] == 'fn':
-                self.recieveFile(conn, data[1])
+            fileName = data.split(':')
+            if fileName[0] == 'fn':
+                self.recieveFile(conn, fileName[1])
                 
             else:
                 self.processRequest(data, conn)
