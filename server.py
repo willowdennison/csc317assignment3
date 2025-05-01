@@ -53,7 +53,7 @@ class FileServer:
             raise(FileNotFoundError)
 
 
-    #sends a file, filePath, to the client, sends a large amount of segments, client combines it into a txt file
+    #sends a file, fileName, to the client, sends a large amount of segments, client combines it into a txt file
     def sendFile(self, fileName, connSocket, doPrint = True): #only works for text files (currently)
         
         try:
@@ -66,7 +66,7 @@ class FileServer:
         
         segmentList = self.encodeFile(file)
         
-        segmentList.append('end'.encode())
+        segmentList.append('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
         
         time.sleep(0.1)
         
