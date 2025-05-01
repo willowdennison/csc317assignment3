@@ -81,7 +81,7 @@ class FileClient:
         return dirList
 
 
-    # Sends file path and file contents,#gets filename from file path and adds header flag
+    # Sends file path and file contents,#gets filename from file path and adds header flag,#mac and windows have different file paths, this checks if the computer is on windows/mac
     def uploadFile(self, filePath):
         if os.path.exists(filePath): 
             file = open(filePath, 'r')
@@ -89,7 +89,7 @@ class FileClient:
         else:
             raise FileNotFoundError
         
-        if '/' in filePath: #mac and windows have different file paths, this checks if the computer is on windows/mac
+        if '/' in filePath: 
             char = '/'
         else: 
             char = '\\'
