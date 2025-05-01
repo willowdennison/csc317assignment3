@@ -44,6 +44,7 @@ class FileClient:
 
      #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
+
     def decodeFile(self, segmentList, fileName):
         
         print(segmentList)
@@ -95,6 +96,7 @@ class FileClient:
 
         for item in segmentList:
             self.mainSocket.send(item) 
+            print(item)
         
         self.mainSocket.send('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
         
@@ -130,8 +132,7 @@ class FileClient:
         request = f"del\n{fileName}"
         self.mainSocket.send(request.encode())
        
-        response = self.mainSocket.recv(1024).decode()
-        return response
+        return (fileName + " Deleted")
 
 if __name__ == "__main__":
     fc = FileClient()
