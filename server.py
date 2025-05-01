@@ -103,7 +103,7 @@ class FileServer:
         if os.path.exists(fileName):
             os.remove(fileName)
         else:
-            print("File does not Exist") #Will be changed 
+            print("File does not Exist") 
 
 
     #lists all files in the files/ directory and formats them for display
@@ -139,9 +139,10 @@ class FileServer:
 
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
-    #does not add header with filename
+    #does not add header with filename,<= means that the last segment will always be an empty string, showing that the file has been fully sent
     def encodeFile(self, file):
         file.seek(0, os.SEEK_END)
+       
         fileLength = file.tell()
         
         file.seek(0)
@@ -151,7 +152,6 @@ class FileServer:
         segments = []
         currentSegment = 0
         
-        #<= means that the last segment will always be an empty string, showing that the file has been fully sent
         while currentSegment <= nSegments:
             
             segments.append(file.read(self.segmentLength).encode())
@@ -160,13 +160,11 @@ class FileServer:
         return segments
     
     
-    #should we include another thing at the start of the segments with the filename? like a custom header
-    #takes a list of encoded data segments from an incoming file transmission,
-    #stores the file at the filename in the first segment,  returns a file object
-    def decodeFile(self, segmentList, fileName):
-        #first entry in segmentList is the filename, returns and removes it from the list, decodes
+    
+    #takes a list of encoded data segments from an incoming file transmission,stores the file at the filename in the first segment,  returns a file object, #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
-        
+    def decodeFile(self, segmentList, fileName):
+         
         file = self.openFile(fileName, 'w')
         
         for segment in segmentList:
@@ -204,8 +202,7 @@ class FileServer:
             case _:
                 connSocket.send('Invalid command'.encode())
                 
-
-            
+       
     #would it be better to return the thread and get rid of the threads list entirely?
     #creates a thread, calls userThread, adds the thread the self._threads list
     def createUserThread(self, connSocket):
@@ -225,7 +222,6 @@ class FileServer:
             
             data = self.receive(conn)
             
-            #if sending a filename, signifying that a file transmission is starting
             fileName = data.split(':')
             if fileName[0] == 'fn':
                 self.recieveFile(conn, fileName[1])

@@ -100,13 +100,11 @@ class FileClient:
         
         segmentList = self.encodeFile(file)
 
-        time.sleep(0.01)
 
         for item in segmentList:
             self.mainSocket.send(item) 
             print(item)
-        
-        self.mainSocket.send('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
+    
         
         return filePath + " uploaded"
 
@@ -125,8 +123,7 @@ class FileClient:
             
             print(segmentList)
 
-            if 'Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU' in segment.decode():
-                segmentList[-1] = segmentList[-1].split('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU')[0]
+            if len(segment.decode()) < 1024:
                 self.decodeFile(segmentList, fileName) 
                 return f"{fileName} Downloaded says client"
             
