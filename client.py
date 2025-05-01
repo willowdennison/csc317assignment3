@@ -42,10 +42,9 @@ class FileClient:
             
         return segments
 
-
-    def decodeFile(self, segmentList, fileName):
-        #first entry in segmentList is the filename, returns and removes it from the list, decodes
+     #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
+    def decodeFile(self, segmentList, fileName):
         
         print(segmentList)
         #quick fix:
@@ -76,22 +75,28 @@ class FileClient:
         if os.path.exists(filePath): 
             file = open(filePath, 'r')
             
+        
         else:
             raise FileNotFoundError
         
         #gets filename from file path and adds header flag
-        fileName = 'fn:' + filePath.split('/')[-1] + ':'
+        if '/' in filePath: #mac and windows have different file paths, this checks if the computer is on windows/mac
+            char = '/'
+        else: 
+            char = '\\'
         
-        headerList = [fileName.encode()]
+        fileName = 'fn:' + filePath.split(char)[-1]
         
-        segmentList = headerList + self.encodeFile(file)
+        self.mainSocket.send(fileName.encode())
+        
+        segmentList = self.encodeFile(file)
+
+        time.sleep(0.01)
 
         for item in segmentList:
-            self.mainSocket.send(item)
+            self.mainSocket.send(item) 
         
-        #ensures that packets don't get combined by tcp
-        time.sleep(0.1)
-        self.mainSocket.send('file sent'.encode())
+        self.mainSocket.send('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
         
         response = self.mainSocket.recv(1024).decode()
         
@@ -125,7 +130,7 @@ class FileClient:
         request = f"del\n{fileName}"
         self.mainSocket.send(request.encode())
        
-        response = self.mainSocket.recv(1024).decode() 
+        response = self.mainSocket.recv(1024).decode()
         return response
 
 if __name__ == "__main__":

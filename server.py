@@ -105,15 +105,16 @@ class FileServer:
 
 
     #takes connection object, recieves, and saves file to directory
-    def recieveFile(self, conn, firstPacket):
-        segmentList = [firstPacket]
+    def recieveFile(self, conn, fileName):
+        segmentList = []
+        
             
         while True: 
             data = self.receive(conn)
                     
             #if this is the end of the file
-            if data == 'file sent':
-                self.decodeFile(segmentList)
+            if 'Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU' in data:
+                self.decodeFile(segmentList, fileName)
                 
                 print("File Received")
 
@@ -147,15 +148,14 @@ class FileServer:
     #should we include another thing at the start of the segments with the filename? like a custom header
     #takes a list of encoded data segments from an incoming file transmission,
     #stores the file at the filename in the first segment,  returns a file object
-    def decodeFile(self, segmentList):
+    def decodeFile(self, segmentList, fileName):
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
-        fileName = segmentList.pop(0).decode().split(':')[1]
         
         file = self.openFile(fileName, 'w')
         
         for segment in segmentList:
-            file.write(segment.decode())
+            file.write(segment)
             
         file = self.openFile(fileName, 'r')
             

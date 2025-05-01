@@ -5,7 +5,7 @@ from client import FileClient#debug? not sure if needed in final version
 
 class MainWindow:
 
-    def __init__(self, fileClient):
+    def __init__(self, fileClient:FileClient):
         
         self.fileClient = fileClient
 
@@ -21,9 +21,11 @@ class MainWindow:
         self.getFileName = StringVar()
         self.pushFileName = StringVar()
         self.deleteFileName = StringVar()
+        #creating stringVar variables so they can be changed in GUI and then accessed in button methods
 
         self.commandFrame = ttk.Frame(root, padding='3 3 12 12')
         self.commandFrame.grid(column=0, row=0, sticky=(N))
+        #creating the frame elements get added to
 
         ttk.Button(self.commandFrame, text='List All Files', command=self.listFiles).grid(column=0,columnspan=2, row=0, sticky=W)
 
@@ -41,37 +43,47 @@ class MainWindow:
         ttk.Label(self.commandFrame,  text='Delete File At').grid(column=1, row=3, sticky=(W, E))
         getFileEntry = ttk.Entry(self.commandFrame, width=30, textvariable=self.deleteFileName)
         getFileEntry.grid(column=2, row=3, sticky=(W, E))
+        #creating all onscreen elements
 
         self.consoleLabel=ttk.Label(self.commandFrame, text='console square', font=('Consolas',10))
         self.consoleLabel.grid(column=3, columnspan=2, row=0, rowspan=4, sticky=(S))
 
         root.mainloop()
+        #internal loop so tk can hear inputs
 
-    
+    #calls client function to list all files in server's directory
     def listFiles(self):
         conf=self.fileClient.listFile()
         print(conf)
         self.consoleLog(conf)
 
 
+    #calls client function to get file from the specific path in server's directory
     def getFile(self):
-        conf=self.fileClient.downloadFile(self.getFileName.get())
-        print(conf)
-        self.consoleLog(conf)
+        path=self.getFileName.get()
+        if path is not "":
+            conf=self.fileClient.downloadFile(path)
+            print(conf)
+            self.consoleLog(conf)
+        else:
+            self.consoleLog("No file specified to download")
 
 
+    #calls client function to push file from the specific path in client's directory
     def pushFile(self):
         conf=self.fileClient.uploadFile(self.pushFileName.get())
         print(conf)
         self.consoleLog(conf)
 
 
+    #calls client function to delete file from the specific path in server's directory
     def deleteFile(self):
         conf=self.fileClient.deleteFile(self.deleteFileName.get())
         print(conf)
         self.consoleLog(conf)
 
 
+    #displays messages to the GUI, basically a convenient print()
     def consoleLog(self,newMsg):
         self.msgQueue.append(newMsg)
         if(len(self.msgQueue)>5):
