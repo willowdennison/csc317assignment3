@@ -7,7 +7,6 @@ class FileClient:
     
     #Constructor: Initializes connection and launches GUI
     def __init__(self):
-        
         self._port = 821 
         self.segmentLength = 1024
 
@@ -26,7 +25,6 @@ class FileClient:
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename
     def encodeFile(self, file):
-
         file.seek(0, os.SEEK_END)
         fileLength = file.tell()
         
@@ -71,11 +69,9 @@ class FileClient:
 
     # request the list of files available on the serve and prints them
     def listFile(self):
-        
         self.mainSocket.sendall("list\n".encode())
         
         data = self.mainSocket.recv(1024).decode()
-        
         dirList = "Files available on server: \n" + data
         
         return dirList
@@ -83,7 +79,6 @@ class FileClient:
 
     # Sends file path and file contents
     def uploadFile(self, filePath):
-        
         if os.path.exists(filePath): 
             file = open(filePath, 'r')
             
@@ -111,7 +106,6 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
-        
         print("before send")
         self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
         print("after send")

@@ -25,7 +25,6 @@ class FileServer:
 
     #creates a thread for each client
     def connect(self): 
-        
         while True:
             
             connSocket, clientAddress = self.mainSocket.accept()
@@ -50,7 +49,6 @@ class FileServer:
 
     #sends a file, filePath, to the client, sends a large amount of segments, client combines it into a txt file
     def sendFile(self, filePath, connSocket, doPrint = True): #only works for text files (currently)
-        
         filePath = 'files/' + filePath
         
         try:
@@ -103,7 +101,6 @@ class FileServer:
 
     #takes connection object, recieves, and saves file to directory
     def recieveFile(self, conn, firstPacket):
-        
         segmentList = [firstPacket]
             
         while True: 
@@ -124,7 +121,6 @@ class FileServer:
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename
     def encodeFile(self, file):
-
         file.seek(0, os.SEEK_END)
         fileLength = file.tell()
         
@@ -148,7 +144,6 @@ class FileServer:
     #takes a list of encoded data segments from an incoming file transmission,
     #stores the file at the filename in the first segment,  returns a file object
     def decodeFile(self, segmentList):
-        
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
         fileName = 'files/' + segmentList.pop(0).decode().split(':')[1]
@@ -166,7 +161,6 @@ class FileServer:
     #take a client request and an active connection, call the appropriate functions, and send the server response
     #handles download, delete, and list requests
     def processRequest(self, request, connSocket):
-        
         request = request.split(sep = '\n')
         requestType = request[0].strip()
         
@@ -205,7 +199,6 @@ class FileServer:
     
     #thread created for each connection to monitor requests, process them, and 
     def userThread(self, conn):
-        
         timeStart = time.time()
         
         while True:
