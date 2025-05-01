@@ -61,7 +61,7 @@ class FileServer:
             file = self.openFile(fileName, 'r')
         
         except FileNotFoundError:
-            connSocket.sendall('Error 404: File not found'.encode())
+            connSocket.send('Error 404: File not found'.encode())
             return
         
         segmentList = self.encodeFile(file)
@@ -71,7 +71,7 @@ class FileServer:
         time.sleep(0.1)
         
         for item in segmentList:
-            connSocket.sendall(item)
+            connSocket.send(item)
             
             if doPrint:
                 print(item)
@@ -175,7 +175,7 @@ class FileServer:
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
                 #time.sleep(0.1)
-                #connSocket.sendall('a'.encode())
+                #connSocket.send('a'.encode())
                 #time.sleep(0.1)
                 
             case 'del':
@@ -183,19 +183,19 @@ class FileServer:
                 print("Deleting "+ fileName)
                 self.delete(fileName) 
                 #time.sleep(0.1)
-                #connSocket.sendall((fileName + ' Deleted').encode())
+                #connSocket.send((fileName + ' Deleted').encode())
                 #time.sleep(0.1)
                 
             case 'list':
                 print("listing")
                 dir = self.listDir()
                 print(dir)
-                connSocket.sendall(dir.encode())
+                connSocket.send(dir.encode())
                 #time.sleep(0.1)
                 #time.sleep(0.1)
                 
             case _:
-                connSocket.sendall('Invalid command'.encode())
+                connSocket.send('Invalid command'.encode())
                 #time.sleep(0.1)
 
             

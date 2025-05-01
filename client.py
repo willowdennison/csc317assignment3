@@ -63,7 +63,7 @@ class FileClient:
 
     # request the list of files available on the serve and prints them
     def listFile(self):
-        self.mainSocket.sendall("list\n".encode())
+        self.mainSocket.send("list\n".encode())
         
         data = self.mainSocket.recv(1024).decode()
         dirList = "Files available on server: \n" + data
@@ -87,11 +87,11 @@ class FileClient:
         segmentList = headerList + self.encodeFile(file)
 
         for item in segmentList:
-            self.mainSocket.sendall(item)
+            self.mainSocket.send(item)
         
         #ensures that packets don't get combined by tcp
         time.sleep(0.1)
-        self.mainSocket.sendall('file sent'.encode())
+        self.mainSocket.send('file sent'.encode())
         
         response = self.mainSocket.recv(1024).decode()
         
@@ -100,7 +100,7 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
-        self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
+        self.mainSocket.send(f'dwn\n{fileName}'.encode())
         
         segmentList = []
         
@@ -122,7 +122,7 @@ class FileClient:
     #sends a request to server to delete file (on server side), gets a response from the server
     def deleteFile(self,fileName):
         request = f"del\n{fileName}"
-        self.mainSocket.sendall(request.encode())
+        self.mainSocket.send(request.encode())
        
         response = self.mainSocket.recv(1024).decode() 
         return response
