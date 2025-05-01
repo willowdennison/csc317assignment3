@@ -19,7 +19,7 @@ class FileClient:
         self.mainSocket.connect(("192.168.0.100", self._port))
         print("Connection Succesful")
 
-        self.interface = GUI.MainWindow(self)
+        self.interface = GUI.mainWindow(self)
         
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
@@ -51,7 +51,7 @@ class FileClient:
         #quick fix:
         try:
             fileName = segmentList.pop(0).decode().split(':')[1] #segment list is empty?? (Fix on thursday)
-            self.mainSocket.sendall('File successfully sent')
+            self.mainSocket.sendall('File successfully sent'.encode())
             
         except IndexError:
             self.mainSocket.sendall('no segments to decode'.encode())
@@ -73,7 +73,7 @@ class FileClient:
         
         data = self.mainSocket.recv(1024).decode()
         dirList = "Files available on server: \n" + data
-        
+
         return dirList
 
 
@@ -106,20 +106,20 @@ class FileClient:
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
     def downloadFile(self, fileName):
-        print("before send")
         self.mainSocket.sendall(f'dwn\n{fileName}'.encode())
-        print("after send")
         
         segmentList = []
         
         while True:
             segment = self.mainSocket.recv(1024)
-            
-            if  fileName + " Downloaded" in segment.decode():
-                self.decodeFile(segmentList) 
-                return f"{fileName} Downloaded says client"
+            print(segment.decode())
             
             segmentList.append(segment)
+            
+            if 'end' in segment.decode():
+                segmentList.pop()
+                self.decodeFile(segmentList) 
+                return f"{fileName} Downloaded says client"
 
         
     #sends a request to server to delete file (on server side), gets a response from the server

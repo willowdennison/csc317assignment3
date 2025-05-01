@@ -66,6 +66,8 @@ class FileServer:
         
         segmentList = self.encodeFile(file)
         
+        segmentList.append('end'.encode())
+        
         connSocket.sendall(fileName.encode())
         
         for item in segmentList:
@@ -73,13 +75,13 @@ class FileServer:
             
             if doPrint:
                 print(item)
-
-        ack = self.receive(connSocket)
-        if ack == 'no segments to decode':
-            print("file failed to send")
+        
+        # ack = self.receive(connSocket)
+        # if ack == 'no segments to decode':
+        #     print("file failed to send")
             
-        if doPrint:
-            print(fileName + ' finished sending')
+        # if doPrint:
+        #     print(fileName + ' finished sending')
 
     
     #deletes the file with path fileName
@@ -150,7 +152,7 @@ class FileServer:
     def decodeFile(self, segmentList):
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
-        fileName = 'files/' + segmentList.pop(0).decode().split(':')[1]
+        fileName = segmentList.pop(0).decode().split(':')[1]
         
         file = self.openFile(fileName, 'w')
         
@@ -174,30 +176,29 @@ class FileServer:
                 fileName = request[1].strip()
                 print("Downloading " + fileName)
                 self.sendFile(fileName, connSocket)
-                time.sleep(0.1)
-                connSocket.sendall('a'.encode())
-                time.sleep(0.1)
+                #time.sleep(0.1)
+                #connSocket.sendall('a'.encode())
+                #time.sleep(0.1)
                 
             case 'del':
                 fileName = request[1].strip()
                 print("Deleting "+ fileName)
                 self.delete(fileName) 
-                time.sleep(0.1)
-                connSocket.sendall((fileName + ' Deleted').encode())
-                time.sleep(0.1)
+                #time.sleep(0.1)
+                #connSocket.sendall((fileName + ' Deleted').encode())
+                #time.sleep(0.1)
                 
             case 'list':
                 print("listing")
                 dir = self.listDir()
                 print(dir)
                 connSocket.sendall(dir.encode())
-                time.sleep(0.1)
-                connSocket.sendall('List Recieved'.encode())
-                time.sleep(0.1)
+                #time.sleep(0.1)
+                #time.sleep(0.1)
                 
             case _:
                 connSocket.sendall('Invalid command'.encode())
-                time.sleep(0.1)
+                #time.sleep(0.1)
 
             
     #would it be better to return the thread and get rid of the threads list entirely?
