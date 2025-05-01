@@ -43,7 +43,12 @@ class FileServer:
     def openFile(self, fileName, permissions):
         
         #on mac this needs to be '/files/'
-        path = os.getcwd() + '\\files\\' + fileName 
+        path = os.getcwd() 
+        if '/' in path: 
+            char = '/'
+        else: 
+            char = '\\'
+        path = path + char + 'files' + char + fileName 
 
         print(path)
 
@@ -91,7 +96,13 @@ class FileServer:
     #deletes the file with path fileName
     def delete(self, fileName):
         
-        fileName = os.getcwd() + '\\files\\' + fileName
+        path = os.getcwd() 
+        if '/' in path: 
+            char = '/'
+        else: 
+            char = '\\'
+            
+        fileName = path + char + 'files' + char + fileName
         
         if os.path.exists(fileName):
             os.remove(fileName)
