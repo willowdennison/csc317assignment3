@@ -75,10 +75,6 @@ class FileServer:
         
         segmentList = self.encodeFile(file)
         
-        segmentList.append('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
-        
-        time.sleep(0.1)
-        
         for item in segmentList:
             connSocket.send(item)
             
@@ -129,16 +125,17 @@ class FileServer:
             
         while True: 
             data = self.receive(conn)
-                    
+            print(data)
+            segmentList.append(data)   
+                 
             #if this is the end of the file
-            if 'Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU' in data:
+            if len(data) < 1024:
+                
                 self.decodeFile(segmentList, fileName)
                 
                 print("File Received")
 
-                return 
-                    
-            segmentList.append(data)
+                return
 
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
