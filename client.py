@@ -81,7 +81,7 @@ class FileClient:
         return dirList
 
 
-    # Sends file path and file contents,#gets filename from file path and adds header flag,#mac and windows have different file paths, this checks if the computer is on windows/mac
+    # Sends file path and file contents,#gets filename from file path and adds header flag
     def uploadFile(self, filePath):
         if os.path.exists(filePath): 
             file = open(filePath, 'r')
@@ -89,7 +89,7 @@ class FileClient:
         else:
             raise FileNotFoundError
         
-        if '/' in filePath: 
+        if '/' in filePath: #mac and windows have different file paths, this checks if the computer is on windows/mac
             char = '/'
         else: 
             char = '\\'
@@ -100,13 +100,11 @@ class FileClient:
         
         segmentList = self.encodeFile(file)
 
-        time.sleep(0.01)
 
         for item in segmentList:
             self.mainSocket.send(item) 
             print(item)
-        
-        self.mainSocket.send('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
+    
         
         return filePath + " uploaded"
 
@@ -125,8 +123,7 @@ class FileClient:
             
             print(segmentList)
 
-            if 'Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU' in segment.decode():
-                segmentList[-1] = segmentList[-1].split('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU')[0]
+            if len(segment.decode()) < 1024:
                 self.decodeFile(segmentList, fileName) 
                 return f"{fileName} Downloaded says client"
             
