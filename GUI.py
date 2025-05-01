@@ -8,6 +8,7 @@ class MainWindow:
     def __init__(self, fileClient:FileClient):
         
         self.fileClient = fileClient
+        self.maxQueueLength=5
 
         root=Tk()
 
@@ -46,7 +47,7 @@ class MainWindow:
         #creating all onscreen elements
 
         self.consoleLabel=ttk.Label(self.commandFrame, text='console square', font=('Consolas',10))
-        self.consoleLabel.grid(column=3, columnspan=2, row=0, rowspan=4, sticky=(S))
+        self.consoleLabel.grid(column=3, columnspan=2, row=0, rowspan=6, sticky=(S))
 
         root.mainloop()
         #internal loop so tk can hear inputs
@@ -54,7 +55,6 @@ class MainWindow:
     #calls client function to list all files in server's directory
     def listFiles(self):
         conf=self.fileClient.listFile()
-        print(conf)
         self.consoleLog(conf)
 
 
@@ -63,7 +63,6 @@ class MainWindow:
         path=self.getFileName.get()
         if path is not "":
             conf=self.fileClient.downloadFile(path)
-            print(conf)
             self.consoleLog(conf)
         else:
             self.consoleLog("No file specified to download")
@@ -71,25 +70,33 @@ class MainWindow:
 
     #calls client function to push file from the specific path in client's directory
     def pushFile(self):
-        conf=self.fileClient.uploadFile(self.pushFileName.get())
-        print(conf)
-        self.consoleLog(conf)
+        path=self.pushFileName.get()
+        if path is not "":
+            conf=self.fileClient.uploadFile(path)
+            self.consoleLog(conf)
+        else:
+            self.consoleLog("No file specified to upload")
 
 
     #calls client function to delete file from the specific path in server's directory
     def deleteFile(self):
-        conf=self.fileClient.deleteFile(self.deleteFileName.get())
-        print(conf)
-        self.consoleLog(conf)
+        path=self.deleteFileName.get()
+        if path is not "":
+            conf=self.fileClient.deleteFile(path)
+            self.consoleLog(conf)
+        else:
+            self.consoleLog("No file specified to delete")
 
 
     #displays messages to the GUI, basically a convenient print()
+    #max length at 5 so console doesn't extend infinitely into window
     def consoleLog(self,newMsg):
+        print(newMsg)
         self.msgQueue.append(newMsg)
-        if(len(self.msgQueue)>5):
+        if len(self.msgQueue) > self.maxQueueLength :
             self.msgQueue.pop(0)
-        txt=''
+        txt = ''
         for msg in self.msgQueue:
-            txt=  txt + '\n' + msg
-        self.consoleLabel.config(text=txt)
+            txt =  txt + '\n' + msg
+        self.consoleLabel.config(text = txt)
 
