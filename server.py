@@ -62,9 +62,10 @@ class FileServer:
         
         #gets the filename from path and prepares header to be sent first
         fileName = ('fn:' + filePath.split('/')[-1] + ':').encode()
-        headerList = [fileName]
         
-        segmentList = headerList + self.encodeFile(file)
+        segmentList = self.encodeFile(file)
+        
+        connSocket.sendall(fileName.encode())
         
         for item in segmentList:
             connSocket.sendall(item)
@@ -98,11 +99,9 @@ class FileServer:
 
 
     #takes connection object, recieves, and saves file to directory
-    def recieveFile(self, conn):
+    def recieveFile(self, conn, firstPacket):
         
-        segmentList = []
-        
-        segmentList.append(data)
+        segmentList = [firstPacket]
                 
         transmissionFinished = False
                 
@@ -138,8 +137,6 @@ class FileServer:
             
             segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
-            
-        segments[-1] = 'end'.encode()
         
         return segments
     
@@ -217,7 +214,7 @@ class FileServer:
             
             #if sending a filename, signifying that a file transmission is starting
             if data.split(':')[0] == 'fn':
-                self.recieveFile(conn)
+                self.recieveFile(conn, data)
                 
             else:
                 self.processRequest(data, conn)
