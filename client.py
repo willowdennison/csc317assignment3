@@ -112,7 +112,7 @@ class FileClient:
             
             print(segmentList)
 
-            if 'end' in segment.decode():
+            if 'Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU' in segment.decode():
                 self.decodeFile(segmentList, fileName) 
                 return f"{fileName} Downloaded says client"
             
