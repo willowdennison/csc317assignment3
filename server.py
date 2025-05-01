@@ -68,8 +68,6 @@ class FileServer:
         
         segmentList.append('end'.encode())
         
-        connSocket.sendall(fileName.encode())
-        
         time.sleep(0.1)
         
         for item in segmentList:
@@ -116,8 +114,6 @@ class FileServer:
             #if this is the end of the file
             if data == 'file sent':
                 self.decodeFile(segmentList)
-                
-                conn.sendall('File recieved')
                 
                 print("File Received")
 
