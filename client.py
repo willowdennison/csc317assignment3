@@ -43,27 +43,21 @@ class FileClient:
         return segments
 
 
-    def decodeFile(self, segmentList):
+    def decodeFile(self, segmentList, fileName):
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
+        
         print(segmentList)
-        
         #quick fix:
-        try:
-            fileName = segmentList.pop(0).decode().split(':')[1] #segment list is empty?? (Fix on thursday)
-            #self.mainSocket.sendall('File successfully sent'.encode())
-            
-        except IndexError:
-            #self.mainSocket.sendall('no segments to decode'.encode())
-            return
         
+
         file = open(fileName, 'w')
         
         for segment in segmentList:
-            file.write(segment.decode())
+            file.write(segment)
             
         file = open(fileName, 'r')
-            
+        
         return file
 
 
@@ -112,14 +106,17 @@ class FileClient:
         
         while True:
             segment = self.mainSocket.recv(1024)
-            print(segment.decode())
+            print(segment)
             
-            segmentList.append(segment)
+            segmentList.append(segment.decode())
             
+            print(segmentList)
+
             if 'end' in segment.decode():
-                segmentList.pop()
-                self.decodeFile(segmentList) 
+                self.decodeFile(segmentList, fileName) 
                 return f"{fileName} Downloaded says client"
+            
+            print('STILL RUNNING')
 
         
     #sends a request to server to delete file (on server side), gets a response from the server
