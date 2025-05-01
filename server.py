@@ -90,6 +90,9 @@ class FileServer:
     
     #deletes the file with path fileName
     def delete(self, fileName):
+        
+        fileName = os.getcwd() + '\\files\\' + fileName
+        
         if os.path.exists(fileName):
             os.remove(fileName)
         else:
