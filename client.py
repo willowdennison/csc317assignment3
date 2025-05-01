@@ -51,10 +51,10 @@ class FileClient:
         #quick fix:
         try:
             fileName = segmentList.pop(0).decode().split(':')[1] #segment list is empty?? (Fix on thursday)
-            self.mainSocket.sendall('File successfully sent'.encode())
+            #self.mainSocket.sendall('File successfully sent'.encode())
             
         except IndexError:
-            self.mainSocket.sendall('no segments to decode'.encode())
+            #self.mainSocket.sendall('no segments to decode'.encode())
             return
         
         file = open(fileName, 'w')

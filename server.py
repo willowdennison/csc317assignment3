@@ -70,6 +70,8 @@ class FileServer:
         
         connSocket.sendall(fileName.encode())
         
+        time.sleep(0.1)
+        
         for item in segmentList:
             connSocket.sendall(item)
             
