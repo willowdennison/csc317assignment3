@@ -152,7 +152,7 @@ class FileServer:
         #first entry in segmentList is the filename, returns and removes it from the list, decodes
         #it, and splits on : to remove the header label
         
-        file = self.openFile(fileName, 'w')
+        file = open(fileName, 'w')
         
         for segment in segmentList:
             file.write(segment)
