@@ -3,11 +3,11 @@ from tkinter import ttk
 from client import FileClient#debug? not sure if needed in final version
 
 
-class mainWindow:
+class MainWindow:
 
-    def __init__(self, FileClient):
+    def __init__(self, fileClient):
         
-        self.fileClient = FileClient
+        self.fileClient = fileClient
 
         root=Tk()
 
@@ -49,32 +49,24 @@ class mainWindow:
 
     
     def listFiles(self):
-        #self.consoleLog('list here')
-        #print('list here')
         conf=self.fileClient.listFile()
         print(conf)
         self.consoleLog(conf)
 
 
     def getFile(self):
-        #self.consoleLog('got file from: ' + self.getFileName.get())
-        #print('got file from: ' + self.getFileName.get())
         conf=self.fileClient.downloadFile(self.getFileName.get())
         print(conf)
         self.consoleLog(conf)
 
 
     def pushFile(self):
-        #self.consoleLog('pushed file from: ' + self.pushFileName.get() + ' to server')
-        #print('pushed file from: ' + self.pushFileName.get() + ' to server')
         conf=self.fileClient.uploadFile(self.pushFileName.get())
         print(conf)
         self.consoleLog(conf)
 
 
     def deleteFile(self):
-        #self.consoleLog('deleted file at: ' + self.deleteFileName.get())
-        #print('deleted file at: ' + self.deleteFileName.get())
         conf=self.fileClient.deleteFile(self.deleteFileName.get())
         print(conf)
         self.consoleLog(conf)

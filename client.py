@@ -19,7 +19,7 @@ class FileClient:
         self.mainSocket.connect(("192.168.0.100", self._port))
         print("Connection Succesful")
 
-        self.interface = GUI.mainWindow(self)
+        self.interface = GUI.MainWindow(self)
         
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
