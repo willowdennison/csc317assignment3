@@ -98,9 +98,9 @@ class FileClient:
         
         self.mainSocket.send('Pit9akLUURPggOT8TrnjvTaHFtf51LlfnQOU'.encode())
         
-        response = self.mainSocket.recv(1024).decode()
+        #response = self.mainSocket.recv(1024).decode()
         
-        return response
+        return filePath + " uploaded"
 
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
