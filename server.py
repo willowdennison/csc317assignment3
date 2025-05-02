@@ -42,7 +42,7 @@ class FileServer:
     #receives messages from client for requests and file uploads
     def receive(self, conn): 
         
-        data = base64.b64decode(conn.recv(1024))
+        data = conn.recv(1024).decode()
         return data
     
 

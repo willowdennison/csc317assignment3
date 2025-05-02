@@ -72,7 +72,8 @@ class FileClient:
         file = open(filePath, 'wb')
         
         for segment in segmentList:
-            file.write(base64.b64decode(segment))
+            print(segment)
+            file.write(segment)
         file.close()
 
 
