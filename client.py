@@ -52,8 +52,6 @@ class FileClient:
     def decodeFile(self, segmentList, fileName):
         
         print(segmentList)
-
-        fileName = 'Downloaded_' + fileName
     
         filePath = os.getcwd()
         
