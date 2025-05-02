@@ -64,12 +64,12 @@ class FileClient:
         
         filePath = filePath + char + 'files' + char + fileName
 
-        file = open(filePath, 'w')
+        file = open(filePath, 'wb')
         
         for segment in segmentList:
             file.write(segment)
             
-        file = open(filePath, 'r')
+        file = open(filePath, 'rb')
         
         return file
 
@@ -90,7 +90,7 @@ class FileClient:
     def uploadFile(self, filePath):
         
         if os.path.exists(filePath): 
-            file = open(filePath, 'r')
+            file = open(filePath, 'rb')
             
         else:
             raise FileNotFoundError

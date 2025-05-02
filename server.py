@@ -45,7 +45,7 @@ class FileServer:
         return data
     
 
-    #open file, check if file exists or create file if permissions == 'w'
+    #open file, check if file exists or create file if permissions == 'wb'
     def openFile(self, fileName, permissions):
         
         path = os.getcwd() 
@@ -58,7 +58,7 @@ class FileServer:
             
         path = path + char + 'files' + char + fileName 
 
-        if permissions == 'w':
+        if permissions == 'wb':
             return open(path, permissions)
         
         elif os.path.exists(path):
@@ -72,7 +72,7 @@ class FileServer:
     def sendFile(self, fileName, conn, doPrint = True):
         
         try:
-            file = self.openFile(fileName, 'r')
+            file = self.openFile(fileName, 'rb')
         
         except FileNotFoundError:
             conn.send('Error 404: File not found'.encode())
@@ -172,12 +172,12 @@ class FileServer:
         #it, and splits on : to remove the header label
     def decodeFile(self, segmentList, fileName):
          
-        file = self.openFile(fileName, 'w')
+        file = self.openFile(fileName, 'wb')
         
         for segment in segmentList:
             file.write(segment)
             
-        file = self.openFile(fileName, 'r')
+        file = self.openFile(fileName, 'rb')
             
         return file
          
