@@ -161,7 +161,7 @@ class FileServer:
         
         while currentSegment <= nSegments:
             
-            segments.append(file.read(self.segmentLength).encode())
+            segments.append(file.read(self.segmentLength))
             currentSegment += 1
         
         return segments
