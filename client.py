@@ -1,7 +1,6 @@
 from socket import *
 import os 
 import GUI
-import base64
 
 
 class FileClient:
@@ -19,8 +18,7 @@ class FileClient:
         self.mainSocket.bind(('', self._port))
         print('Socket Bound')
 
-        ip = input("Enter Server IP: ")
-        self.mainSocket.connect((ip, self._port))
+        self.mainSocket.connect(('192.168.0.100', self._port))
         print('Connection Succesful')
 
         self.interface = GUI.MainWindow(self)
@@ -28,23 +26,20 @@ class FileClient:
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     def encodeFile(self, file):
-
+        
         file.seek(0, os.SEEK_END)
         fileLength = file.tell()
         
-        nSegments = fileLength / self.segmentLength #+1
-        
         file.seek(0)
-                
+        
+        nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
+        
         segments = []
         currentSegment = 0
         
         while currentSegment <= nSegments:
-
-            segments.append(file.read(self.segmentLength))
             
-            segments[currentSegment] = base64.b64encode(segments[currentSegment])
-
+            segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
             
         return segments
@@ -69,12 +64,14 @@ class FileClient:
         
         filePath = filePath + char + 'files' + char + fileName
 
-        file = open(filePath, 'wb')
+        file = open(filePath, 'w')
         
         for segment in segmentList:
-            print(segment)
             file.write(segment)
-        file.close()
+            
+        file = open(filePath, 'r')
+        
+        return file
 
 
     #requests the list of files available on the serve and prints them
@@ -93,7 +90,7 @@ class FileClient:
     def uploadFile(self, filePath):
         
         if os.path.exists(filePath): 
-            file = open(filePath, "rb")
+            file = open(filePath, 'r')
             
         else:
             raise FileNotFoundError
@@ -129,11 +126,11 @@ class FileClient:
             segment = self.mainSocket.recv(1024)
             print(segment)
             
-            segmentList.append(base64.b64decode(segment))
+            segmentList.append(segment.decode())
             
             print(segmentList)
 
-            if len(base64.b64decode(segment)) < 1024:
+            if len(segment.decode()) < 1024:
                 self.decodeFile(segmentList, fileName) 
                 return f'{fileName} downloaded'
 

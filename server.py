@@ -2,7 +2,6 @@ from socket import *
 import threading
 import time
 import os
-import base64
 
 
 class FileServer:
@@ -59,7 +58,7 @@ class FileServer:
             
         path = path + char + 'files' + char + fileName 
 
-        if permissions == 'wb':
+        if permissions == 'w':
             return open(path, permissions)
         
         elif os.path.exists(path):
@@ -73,7 +72,7 @@ class FileServer:
     def sendFile(self, fileName, conn, doPrint = True):
         
         try:
-            file = self.openFile(fileName, 'rb')
+            file = self.openFile(fileName, 'r')
         
         except FileNotFoundError:
             conn.send('Error 404: File not found'.encode())
@@ -148,25 +147,23 @@ class FileServer:
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename,<= means that the last segment will always be an empty string, showing that the file has been fully sent
     def encodeFile(self, file):
-
+        
         file.seek(0, os.SEEK_END)
+       
         fileLength = file.tell()
         
-        nSegments = fileLength / self.segmentLength
-        
         file.seek(0)
-                
+        
+        nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
+        
         segments = []
         currentSegment = 0
         
         while currentSegment <= nSegments:
-
-            segments.append(file.read(self.segmentLength))
             
-            segments[currentSegment] = base64.b64encode(segments[currentSegment])
-
+            segments.append(file.read(self.segmentLength).encode())
             currentSegment += 1
-            
+        
         return segments
     
     
@@ -175,13 +172,14 @@ class FileServer:
         #it, and splits on : to remove the header label
     def decodeFile(self, segmentList, fileName):
          
-        file = self.openFile(fileName, 'wb')
+        file = self.openFile(fileName, 'w')
         
         for segment in segmentList:
-            file.write(base64.b64decode(segment))
-        file.close()
-        file = self.openFile(fileName, 'rb')
-        file.close()
+            file.write(segment)
+            
+        file = self.openFile(fileName, 'r')
+            
+        return file
          
 
     #take a client request and an active connection, call the appropriate functions, and send the server response
