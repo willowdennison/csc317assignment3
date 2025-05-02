@@ -72,7 +72,7 @@ class FileClient:
         
         file = open(filePath, 'rb')
         
-        return file
+        file.close()
 
 
     #requests the list of files available on the serve and prints them

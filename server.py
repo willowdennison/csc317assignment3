@@ -178,7 +178,7 @@ class FileServer:
             
         file = self.openFile(fileName, 'rb')
             
-        return file
+        file.close()
          
 
     #take a client request and an active connection, call the appropriate functions, and send the server response
