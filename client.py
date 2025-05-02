@@ -131,7 +131,7 @@ class FileClient:
             
             print(segmentList)
 
-            if len(segment.decode()) < 1024:
+            if len(segment) == 0:
                 self.decodeFile(segmentList, fileName) 
                 return f'{fileName} downloaded'
 
