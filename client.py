@@ -80,7 +80,7 @@ class FileClient:
         
         self.mainSocket.send('list\n'.encode())
         
-        data = self.mainSocket.recv(1024).decode()
+        data = self.mainSocket.recv(self.segmentLength).decode()
        
         dirList = 'Files available on server: \n' + data
 
@@ -126,11 +126,11 @@ class FileClient:
         
         while True:
             
-            segment = self.mainSocket.recv(1024)
+            segment = self.mainSocket.recv(self.segmentLength)
             
             segmentList.append(segment)
 
-            if len(segment) < 1024:
+            if len(segment) < self.segmentLength:
                 self.decodeFile(segmentList, fileName) 
                 return f'{fileName} downloaded'
 

@@ -41,7 +41,7 @@ class FileServer:
     #receives messages from client for requests and file uploads
     def receive(self, conn): 
         
-        data = conn.recv(1024).decode()
+        data = conn.recv(self.segmentLength).decode()
         return data
     
 
@@ -126,7 +126,7 @@ class FileServer:
         segmentList = []
             
         while True: 
-            data = conn.recv(1024)
+            data = conn.recv(self.segmentLength)
             
             if doPrint: 
                 print(data)
@@ -134,7 +134,7 @@ class FileServer:
             segmentList.append(data)   
             
             #if this is the end of the file
-            if len(data) < 1024:
+            if len(data) < self.segmentLength:
                 
                 self.decodeFile(segmentList, fileName)
                 
