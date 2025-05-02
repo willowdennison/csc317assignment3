@@ -1,6 +1,7 @@
 from socket import *
 import os 
 import GUI
+import base64
 
 
 class FileClient:
@@ -26,21 +27,28 @@ class FileClient:
 
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     def encodeFile(self, file):
+        encodedFile = base64.b64encode(file.read())
+
+
+        #file.seek(0, os.SEEK_END)
+       # fileLength = file.tell()
+        nSegments = len(encodedFile) / self.segmentLength
         
-        file.seek(0, os.SEEK_END)
-        fileLength = file.tell()
-        
-        file.seek(0)
-        
-        nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
-        
+        #file.seek(0)
+                
         segments = []
         currentSegment = 0
         
-        while currentSegment <= nSegments:
+        while currentSegment < nSegments:
             
-            segments.append(file.read(self.segmentLength).encode())
+            position = currentSegment * self.segmentLength
+            
+            segments.append((''.join(encodedFile[(0 + position):(1023 + position)])))
+            
             currentSegment += 1
+        
+        segments.append(''.join(encodedFile[(0 + position):]))
+        print(len(segments[-1]))
             
         return segments
     #first entry in segmentList is the filename, returns and removes it from the list, decodes

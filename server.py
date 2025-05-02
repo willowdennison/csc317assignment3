@@ -159,15 +159,24 @@ class FileServer:
         
         # nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
         
-        nSegments = len(encodedFile)
+        #if it rounds down then the last remaining segment after loop will be the only one less than 1024 bytes
+        nSegments = len(encodedFile) / self.segmentLength
         
         segments = []
         currentSegment = 0
         
-        while currentSegment <= nSegments:
+        #all 1024 byte segments
+        while currentSegment < nSegments:
             
-            segments.append(file.read(self.segmentLength).encode())
+            position = currentSegment * self.segmentLength
+            
+            segments.append((''.join(encodedFile[(0 + position):(1023 + position)])))
+            
             currentSegment += 1
+        
+        #all remaining bytes
+        segments.append(''.join(encodedFile[(0 + position):]))
+        print(len(segments[-1]))
         
         return segments
     
