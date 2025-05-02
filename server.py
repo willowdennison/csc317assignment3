@@ -120,19 +120,19 @@ class FileServer:
         return formattedDir
 
 
-    #takes connection object, recieves a file over socket conn, and saves file to directory
-    def recieveFile(self, conn, fileName, doPrint = True):
+    #takes connection object, receives a file over socket conn, and saves file to directory
+    def receiveFile(self, conn, fileName, doPrint = True):
         
         segmentList = []
             
         while True: 
-            data = self.receive(conn)
+            data = conn.recv(1024)
             
             if print: 
                 print(data)
                 
             segmentList.append(data)   
-                 
+            
             #if this is the end of the file
             if len(data) < 1024:
                 
@@ -233,7 +233,7 @@ class FileServer:
             
             fileName = data.split(':')
             if fileName[0] == 'fn':
-                self.recieveFile(conn, fileName[1])
+                self.receiveFile(conn, fileName[1])
                 
             else:
                 self.processRequest(data, conn)
