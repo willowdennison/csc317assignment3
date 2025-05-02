@@ -13,13 +13,13 @@ class FileClient:
         self.segmentLength = 1024
 
         self.mainSocket = socket(AF_INET,SOCK_STREAM)
-        print("Socket Connected")
+        print('Socket Connected')
 
-        self.mainSocket.bind(("", self._port))
-        print("Socket Bound")
+        self.mainSocket.bind(('', self._port))
+        print('Socket Bound')
 
-        self.mainSocket.connect(("192.168.0.100", self._port))
-        print("Connection Succesful")
+        self.mainSocket.connect(('192.168.0.100', self._port))
+        print('Connection Succesful')
 
         self.interface = GUI.MainWindow(self)
         
@@ -77,11 +77,11 @@ class FileClient:
     #requests the list of files available on the serve and prints them
     def listFile(self):
         
-        self.mainSocket.send("list\n".encode())
+        self.mainSocket.send('list\n'.encode())
         
         data = self.mainSocket.recv(1024).decode()
        
-        dirList = "Files available on server: \n" + data
+        dirList = 'Files available on server: \n' + data
 
         return dirList
 
@@ -111,7 +111,7 @@ class FileClient:
             self.mainSocket.send(item) 
             print(item)
     
-        return filePath + " uploaded"
+        return filePath + ' uploaded'
 
 
     #Sends a request for server to send file contents, and then creates a duplicate file in client
@@ -132,19 +132,19 @@ class FileClient:
 
             if len(segment.decode()) < 1024:
                 self.decodeFile(segmentList, fileName) 
-                return f"{fileName} downloaded"
+                return f'{fileName} downloaded'
 
         
     #sends a request to server to delete file (on server side), gets a response from the server
     def deleteFile(self,fileName):
         
-        request = f"del\n{fileName}"
+        request = f'del\n{fileName}'
         
         self.mainSocket.send(request.encode())
        
-        return (fileName + " Deleted")
+        return (fileName + ' Deleted')
 
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     fc = FileClient()

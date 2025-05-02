@@ -63,31 +63,31 @@ class MainWindow:
   #calls client function to get file from the specific path in server's directory
   def getFile(self):
     path = self.getFileName.get()
-    if path is not "":
+    if path is not '':
       conf = self.fileClient.downloadFile(path)
       self.consoleLog(conf)
     else:
-      self.consoleLog("No file specified to download")
+      self.consoleLog('No file specified to download')
 
 
   #calls client function to push file from the specific path in client's directory
   def pushFile(self):
     path = self.pushFileName.get()
-    if path is not "":
+    if path is not '':
       conf = self.fileClient.uploadFile(path)
       self.consoleLog(conf)
     else:
-      self.consoleLog("No file specified to upload")
+      self.consoleLog('No file specified to upload')
 
 
   #calls client function to delete file from the specific path in server's directory
   def deleteFile(self):
     path = self.deleteFileName.get()
-    if path is not "":
+    if path is not '':
       conf = self.fileClient.deleteFile(path)
       self.consoleLog(conf)
     else:
-      self.consoleLog("No file specified to delete")
+      self.consoleLog('No file specified to delete')
 
 
   #displays messages to the GUI, basically a convenient print()
