@@ -128,7 +128,7 @@ class FileServer:
         while True: 
             data = conn.recv(1024)
             
-            if print: 
+            if doPrint: 
                 print(data)
                 
             segmentList.append(data)   
@@ -193,7 +193,7 @@ class FileServer:
             case 'dwn':
                 fileName = request[1].strip()
                 print('Downloading ' + fileName)
-                self.sendFile(fileName, conn)
+                self.sendFile(fileName, conn, doPrint=False)
                 
             case 'del':
                 fileName = request[1].strip()
@@ -232,7 +232,7 @@ class FileServer:
             
             fileName = data.split(':')
             if fileName[0] == 'fn':
-                self.receiveFile(conn, fileName[1])
+                self.receiveFile(conn, fileName[1], doPrint=False)
                 
             else:
                 self.processRequest(data, conn)
