@@ -148,38 +148,25 @@ class FileServer:
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename,<= means that the last segment will always be an empty string, showing that the file has been fully sent
     def encodeFile(self, file):
+
+        file.seek(0, os.SEEK_END)
+        fileLength = file.tell()
         
-        encodedFile = base64.b64encode(file.read())
+        nSegments = fileLength / self.segmentLength
         
-        print(encodedFile)
-        
-        # file.seek(0, os.SEEK_END)
-       
-        # fileLength = file.tell()
-        
-        # file.seek(0)
-        
-        # nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
-        
-        #if it rounds down then the last remaining segment after loop will be the only one less than 1024 bytes
-        nSegments = len(encodedFile) / self.segmentLength
-        
+        file.seek(0)
+                
         segments = []
         currentSegment = 0
         
-        #all 1024 byte segments
-        while currentSegment < nSegments:
+        while currentSegment <= nSegments:
+
+            segments.append(file.read(self.segmentLength))
             
-            position = currentSegment * self.segmentLength
-            
-            segments.append((''.join(encodedFile[(0 + position):(1023 + position)])))
-            
+            segments[currentSegment] = base64.b64encode(segments[currentSegment])
+
             currentSegment += 1
-        
-        #all remaining bytes
-        segments.append(''.join(encodedFile[(0 + position):]))
-        print(len(segments[-1]))
-        
+            
         return segments
     
     
