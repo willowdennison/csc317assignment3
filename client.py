@@ -127,11 +127,8 @@ class FileClient:
         while True:
             
             segment = self.mainSocket.recv(1024)
-            #print(segment)
             
             segmentList.append(segment)
-            
-            #print(segmentList)
 
             if len(segment) < 1024:
                 self.decodeFile(segmentList, fileName) 

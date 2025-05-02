@@ -164,8 +164,7 @@ class FileServer:
             segments.append(file.read(self.segmentLength))
             currentSegment += 1
         
-        return segments
-    
+        return segments  
     
     
     #takes a list of encoded data segments from an incoming file transmission,stores the file at the filename in the first segment,  returns a file object, #first entry in segmentList is the filename, returns and removes it from the list, decodes
