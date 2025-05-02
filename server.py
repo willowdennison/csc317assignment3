@@ -5,13 +5,16 @@ import os
 
 class FileServer:
 
+
     def __init__(self):
+        
         self._port = 821
 
         self.mainSocket = socket(AF_INET, SOCK_STREAM)
         print('Socket Connected')
-        # Binds socket to port 
-        self.mainSocket.bind(('', self._port)) #use 127.0.0.1 in the first argument to connect with your own pc
+        
+        #use 127.0.0.1 in the first argument to connect with your own pc
+        self.mainSocket.bind(('', self._port)) 
         print('Socket Bound')
 
         #set connection buffer size to 5
@@ -23,34 +26,35 @@ class FileServer:
         connectThread.start()
 
 
-    #creates a thread for each client
+    #accepts connections and opens a thread for each user when they connect
     def connect(self): 
+        
         while True:
             
-            connSocket, clientAddress = self.mainSocket.accept()
+            conn, clientAddress = self.mainSocket.accept()
             print('Connected to:', clientAddress)
             
-            self.createUserThread(connSocket)
+            self.createUserThread(conn)
 
 
-    #receives messages from client for debugging and handshakes
-    def receive(self, connSocket): 
-        data = connSocket.recv(1024).decode()
+    #receives messages from client for requests and file uploads
+    def receive(self, conn): 
+        
+        data = conn.recv(1024).decode()
         return data
     
 
-    #open file with checking for nonexistent files
+    #open file, check if file exists or create file if permissions == 'w'
     def openFile(self, fileName, permissions):
         
-        #on mac this needs to be '/files/'
         path = os.getcwd() 
+        
         if '/' in path: 
             char = '/'
         else: 
             char = '\\'
+            
         path = path + char + 'files' + char + fileName 
-
-        print(path)
 
         if permissions == 'w':
             return open(path, permissions)
@@ -62,37 +66,30 @@ class FileServer:
             raise(FileNotFoundError)
 
 
-    #sends a file, fileName, to the client, sends a large amount of segments, client combines it into a txt file
-    def sendFile(self, fileName, connSocket, doPrint = True): #only works for text files (currently)
+    #sends a file, fileName, to the client, in max length 1024 byte segments
+    def sendFile(self, fileName, conn, doPrint = True):
         
         try:
-            print(fileName)
             file = self.openFile(fileName, 'r')
         
         except FileNotFoundError:
-            connSocket.send('Error 404: File not found'.encode())
+            conn.send('Error 404: File not found'.encode())
             return
         
         segmentList = self.encodeFile(file)
         
         for item in segmentList:
-            connSocket.send(item)
+            conn.send(item)
             
             if doPrint:
                 print(item)
-        
-        # ack = self.receive(connSocket)
-        # if ack == 'no segments to decode':
-        #     print("file failed to send")
-            
-        # if doPrint:
-        #     print(fileName + ' finished sending')
 
     
-    #deletes the file with path fileName
+    #deletes the file at fileName
     def delete(self, fileName):
         
         path = os.getcwd() 
+        
         if '/' in path: 
             char = '/'
         else: 
@@ -102,12 +99,14 @@ class FileServer:
         
         if os.path.exists(fileName):
             os.remove(fileName)
+            print(f'{fileName} deleted')
         else:
-            print("File does not Exist") 
+            print('File does not Exist') 
 
 
-    #lists all files in the files/ directory and formats them for display
+    #lists all files in the /files/ directory and formats them for display
     def listDir(self):
+        
         dir = os.listdir('files')
         
         formattedDir = ''
@@ -118,14 +117,17 @@ class FileServer:
         return formattedDir
 
 
-    #takes connection object, recieves, and saves file to directory
-    def recieveFile(self, conn, fileName):
-        segmentList = []
+    #takes connection object, recieves a file over socket conn, and saves file to directory
+    def recieveFile(self, conn, fileName, doPrint = True):
         
+        segmentList = []
             
         while True: 
             data = self.receive(conn)
-            print(data)
+            
+            if print: 
+                print(data)
+                
             segmentList.append(data)   
                  
             #if this is the end of the file
@@ -133,7 +135,8 @@ class FileServer:
                 
                 self.decodeFile(segmentList, fileName)
                 
-                print("File Received")
+                if doPrint:
+                    print(f'{fileName} received')
 
                 return
 
@@ -141,6 +144,7 @@ class FileServer:
     #takes a file object, transforms the file into a list of maximum length 1024 byte data segments, encoded to be sent over a socket
     #does not add header with filename,<= means that the last segment will always be an empty string, showing that the file has been fully sent
     def encodeFile(self, file):
+        
         file.seek(0, os.SEEK_END)
        
         fileLength = file.tell()
@@ -177,7 +181,8 @@ class FileServer:
 
     #take a client request and an active connection, call the appropriate functions, and send the server response
     #handles download, delete, and list requests
-    def processRequest(self, request, connSocket):
+    def processRequest(self, request, conn):
+        
         request = request.split(sep = '\n')
         requestType = request[0].strip()
         
@@ -185,33 +190,34 @@ class FileServer:
             
             case 'dwn':
                 fileName = request[1].strip()
-                print("Downloading " + fileName)
-                self.sendFile(fileName, connSocket)
+                print('Downloading ' + fileName)
+                self.sendFile(fileName, conn)
                 
             case 'del':
                 fileName = request[1].strip()
-                print("Deleting "+ fileName)
+                print('Deleting '+ fileName)
                 self.delete(fileName) 
                    
             case 'list':
-                print("listing")
+                print('listing')
                 dir = self.listDir()
                 print(dir)
-                connSocket.send(dir.encode())
+                conn.send(dir.encode())
                 
             case _:
-                connSocket.send('Invalid command'.encode())
+                conn.send('Invalid command'.encode())
                 
-       
-    #would it be better to return the thread and get rid of the threads list entirely?
-    #creates a thread, calls userThread, adds the thread the self._threads list
-    def createUserThread(self, connSocket):
-        thread = threading.Thread(target = self.userThread, args = (connSocket,))
+                
+    #creates a thread for the connection at conn using userThread()
+    def createUserThread(self, conn):
+        
+        thread = threading.Thread(target = self.userThread, args = (conn,))
         thread.start()
         
     
-    #thread created for each connection to monitor requests, process them, and 
+    #thread created for each connection to monitor and handle client requests
     def userThread(self, conn):
+        
         timeStart = time.time()
         
         while True:
@@ -231,4 +237,7 @@ class FileServer:
             
             timeStart = time.time()
 
-main = FileServer()
+
+
+if __name__ == '__main__':
+    main = FileServer()
