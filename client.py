@@ -19,7 +19,9 @@ class FileClient:
         self.mainSocket.bind(('', self._port))
         print('Socket Bound')
 
-        self.mainSocket.connect(('192.168.0.100', self._port))
+        ip = input('Enter Host IP: ')
+
+        self.mainSocket.connect((ip, self._port))
         print('Connection Succesful')
 
         self.interface = GUI.MainWindow(self)
@@ -125,11 +127,11 @@ class FileClient:
         while True:
             
             segment = self.mainSocket.recv(1024)
-            print(segment)
+            #print(segment)
             
             segmentList.append(segment)
             
-            print(segmentList)
+            #print(segmentList)
 
             if len(segment) < 1024:
                 self.decodeFile(segmentList, fileName) 
