@@ -1,6 +1,7 @@
 from socket import *
 import os 
 import GUI
+import time
 
 
 class FileClient:
@@ -68,7 +69,7 @@ class FileClient:
         
         for segment in segmentList:
             file.write(segment)
-            
+        
         file = open(filePath, 'rb')
         
         return file
@@ -106,6 +107,8 @@ class FileClient:
         self.mainSocket.send(fileName.encode())
         
         segmentList = self.encodeFile(file)
+        
+        time.sleep(0.01)
 
         for item in segmentList:
             self.mainSocket.send(item) 
@@ -126,7 +129,7 @@ class FileClient:
             segment = self.mainSocket.recv(1024)
             print(segment)
             
-            segmentList.append(segment.decode())
+            segmentList.append(segment)
             
             print(segmentList)
 
