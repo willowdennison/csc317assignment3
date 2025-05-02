@@ -49,6 +49,7 @@ class FileServer:
         
         path = os.getcwd() 
         
+        #check for file separator character and use the proper one
         if '/' in path: 
             char = '/'
         else: 
@@ -90,6 +91,7 @@ class FileServer:
         
         path = os.getcwd() 
         
+        #check for file separator character and use the proper one
         if '/' in path: 
             char = '/'
         else: 
