@@ -69,6 +69,8 @@ class FileClient:
         
         for segment in segmentList:
             file.write(segment)
+            
+        file.close()
         
         file = open(filePath, 'rb')
         

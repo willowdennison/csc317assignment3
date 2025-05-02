@@ -176,6 +176,8 @@ class FileServer:
         for segment in segmentList:
             file.write(segment)
             
+        file.close()
+            
         file = self.openFile(fileName, 'rb')
             
         file.close()
