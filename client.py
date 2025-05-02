@@ -69,14 +69,11 @@ class FileClient:
         
         filePath = filePath + char + 'files' + char + fileName
 
-        file = open(filePath, 'w', encoding = 'utf-8')
+        file = open(filePath, 'wb')
         
         for segment in segmentList:
             file.write(base64.b64decode(segment))
-            
-        file = open(filePath, 'r', encoding = 'utf-8')
-        
-        return file
+        file.close()
 
 
     #requests the list of files available on the serve and prints them
@@ -95,7 +92,7 @@ class FileClient:
     def uploadFile(self, filePath):
         
         if os.path.exists(filePath): 
-            file = open(filePath, 'r', encoding = 'utf-8')
+            file = open(filePath, "rb")
             
         else:
             raise FileNotFoundError
@@ -131,11 +128,11 @@ class FileClient:
             segment = self.mainSocket.recv(1024)
             print(segment)
             
-            segmentList.append(segment.decode())
+            segmentList.append(base64.b64decode(segment))
             
             print(segmentList)
 
-            if len(segment.decode()) < 1024:
+            if len(base64.b64decode(segment)) < 1024:
                 self.decodeFile(segmentList, fileName) 
                 return f'{fileName} downloaded'
 
