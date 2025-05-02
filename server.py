@@ -2,6 +2,7 @@ from socket import *
 import threading
 import time
 import os
+import base64
 
 
 class FileServer:
@@ -59,10 +60,10 @@ class FileServer:
         path = path + char + 'files' + char + fileName 
 
         if permissions == 'w':
-            return open(path, permissions)
+            return open(path, permissions, encoding = 'utf-8')
         
         elif os.path.exists(path):
-            return open(path, permissions)
+            return open(path, permissions, encoding = 'utf-8')
         
         else: 
             raise(FileNotFoundError)
@@ -148,13 +149,17 @@ class FileServer:
     #does not add header with filename,<= means that the last segment will always be an empty string, showing that the file has been fully sent
     def encodeFile(self, file):
         
-        file.seek(0, os.SEEK_END)
+        encodedFile = base64.b64encode(file.read())
+        
+        # file.seek(0, os.SEEK_END)
        
-        fileLength = file.tell()
+        # fileLength = file.tell()
         
-        file.seek(0)
+        # file.seek(0)
         
-        nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
+        # nSegments = int(fileLength / self.segmentLength) + (fileLength % self.segmentLength > 0)
+        
+        nSegments = len(encodedFile)
         
         segments = []
         currentSegment = 0
