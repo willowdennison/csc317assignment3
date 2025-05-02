@@ -189,10 +189,10 @@ class FileServer:
         file = self.openFile(fileName, 'w')
         
         for segment in segmentList:
-            file.write(segment)
-            
+            file.write(base64.b64decode(segment))
+        file.close()
         file = self.openFile(fileName, 'r')
-            
+        file.close()
         return file
          
 
