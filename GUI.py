@@ -1,9 +1,10 @@
 from tkinter import *
 from tkinter import ttk
-from client import FileClient#debug? not sure if needed in final version
+from client import FileClient
 
 
 class MainWindow:
+
 
   def __init__(self, fileClient:FileClient):
     
@@ -52,6 +53,7 @@ class MainWindow:
     root.mainloop()
     #internal loop so tk can hear inputs
 
+
   #calls client function to list all files in server's directory
   def listFiles(self):
     conf = self.fileClient.listFile()
@@ -99,4 +101,3 @@ class MainWindow:
     for msg in self.msgQueue:
       txt =  txt + '\n' + msg
     self.consoleLabel.config(text = txt)
-

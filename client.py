@@ -2,6 +2,7 @@ from socket import *
 import os 
 import GUI
 
+
 class FileClient:
     
     
