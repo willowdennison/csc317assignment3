@@ -59,11 +59,11 @@ class FileServer:
             
         path = path + char + 'files' + char + fileName 
 
-        if permissions == 'w':
-            return open(path, permissions, encoding = 'utf-8')
+        if permissions == 'wb':
+            return open(path, permissions)
         
         elif os.path.exists(path):
-            return open(path, permissions, encoding = 'utf-8')
+            return open(path, permissions)
         
         else: 
             raise(FileNotFoundError)
@@ -73,7 +73,7 @@ class FileServer:
     def sendFile(self, fileName, conn, doPrint = True):
         
         try:
-            file = self.openFile(fileName, 'r')
+            file = self.openFile(fileName, 'rb')
         
         except FileNotFoundError:
             conn.send('Error 404: File not found'.encode())
@@ -151,6 +151,8 @@ class FileServer:
         
         encodedFile = base64.b64encode(file.read())
         
+        print(encodedFile)
+        
         # file.seek(0, os.SEEK_END)
        
         # fileLength = file.tell()
@@ -186,12 +188,12 @@ class FileServer:
         #it, and splits on : to remove the header label
     def decodeFile(self, segmentList, fileName):
          
-        file = self.openFile(fileName, 'w')
+        file = self.openFile(fileName, 'wb')
         
         for segment in segmentList:
             file.write(base64.b64decode(segment))
         file.close()
-        file = self.openFile(fileName, 'r')
+        file = self.openFile(fileName, 'rb')
         file.close()
         return file
          
