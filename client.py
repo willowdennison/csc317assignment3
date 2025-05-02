@@ -46,8 +46,6 @@ class FileClient:
             currentSegment += 1
             
         return segments
-    #first entry in segmentList is the filename, returns and removes it from the list, decodes
-    #it, and splits on : to remove the header label
 
 
     #decodes a segmentList from downloadFile() and saves it to fileName
